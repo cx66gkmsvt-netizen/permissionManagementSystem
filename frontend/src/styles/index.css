@@ -1,0 +1,189 @@
+/* 全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  font-family: 'Microsoft YaHei', 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* 布局样式 */
+.layout-container {
+  height: 100%;
+  display: flex;
+}
+
+.layout-sidebar {
+  width: 220px;
+  background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+  transition: width 0.3s;
+  overflow: hidden;
+}
+
+.layout-sidebar.collapsed {
+  width: 64px;
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f0f2f5;
+}
+
+.layout-header {
+  height: 60px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.layout-content {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Logo 样式 */
+.logo {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.logo-collapsed {
+  font-size: 20px;
+}
+
+/* 菜单样式 */
+.el-menu {
+  border: none !important;
+  background: transparent !important;
+}
+
+.el-menu--dark {
+  background: transparent;
+}
+
+.el-menu-item,
+.el-sub-menu__title {
+  height: 50px !important;
+  line-height: 50px !important;
+}
+
+/* 页面卡片 */
+.page-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.page-card:last-child {
+  margin-bottom: 0;
+}
+
+/* 表格操作按钮 */
+.table-actions {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* 表格填满容器 */
+.page-card .el-table {
+  flex: 1;
+  width: 100% !important;
+}
+
+.page-card .el-table__body-wrapper {
+  overflow-y: auto;
+}
+
+/* 分页器 */
+.page-card .el-pagination {
+  flex-shrink: 0;
+  margin-top: 16px;
+}
+
+/* 状态标签 */
+.status-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.status-normal {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.status-disabled {
+  background: #fff1f0;
+  color: #f5222d;
+}
+
+/* 暗色主题菜单 */
+.dark-menu {
+  --el-menu-bg-color: transparent;
+  --el-menu-text-color: #bfcbd9;
+  --el-menu-hover-bg-color: rgba(255, 255, 255, 0.1);
+  --el-menu-active-color: #409eff;
+}
+
+/* 树形组件 */
+.tree-border {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  padding: 10px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+/* 动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
