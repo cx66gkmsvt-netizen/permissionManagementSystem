@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"user-center/internal/middleware"
 	"user-center/internal/model"
 	"user-center/internal/pkg"
 	"user-center/internal/service"
@@ -90,8 +89,7 @@ func (h *DeptHandler) Create(c *gin.Context) {
 	}
 
 	// 90
-	operatorID := middleware.GetUserID(c)
-	if err := h.deptService.Create(&req, operatorID); err != nil {
+	if err := h.deptService.Create(&req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -121,8 +119,7 @@ func (h *DeptHandler) Update(c *gin.Context) {
 		return
 	}
 
-	operatorID := middleware.GetUserID(c)
-	if err := h.deptService.Update(deptID, &req, operatorID); err != nil {
+	if err := h.deptService.Update(deptID, &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -144,8 +141,7 @@ func (h *DeptHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	operatorID := middleware.GetUserID(c)
-	if err := h.deptService.Delete(deptID, operatorID); err != nil {
+	if err := h.deptService.Delete(deptID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}

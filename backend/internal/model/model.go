@@ -123,19 +123,3 @@ type SysOperLog struct {
 func (SysOperLog) TableName() string {
 	return "sys_oper_log"
 }
-
-// SysFollowUp 跟进记录表
-type SysFollowUp struct {
-	ID           int64     `json:"id" gorm:"primaryKey;autoIncrement;column:id;comment:主键ID"`
-	TargetType   string    `json:"targetType" gorm:"column:target_type;size:50;index;comment:目标类型"` // 目标类型，如 sys_user
-	TargetID     int64     `json:"targetId" gorm:"column:target_id;index;comment:目标ID"`             // 目标ID
-	Content      string    `json:"content" gorm:"column:content;type:text;comment:跟进内容"`            // 跟进内容
-	OperUserID   *int64    `json:"operUserId" gorm:"column:oper_user_id;comment:操作人ID"`             // 操作人ID
-	OperUserName string    `json:"operUserName" gorm:"column:oper_user_name;size:50;comment:操作人姓名"` // 操作人姓名
-	OperTime     time.Time `json:"operTime" gorm:"column:oper_time;autoCreateTime;comment:操作时间"`    // 操作时间
-	Remark       string    `json:"remark" gorm:"column:remark;size:500;comment:备注"`                 // 备注
-}
-
-func (SysFollowUp) TableName() string {
-	return "sys_follow_up"
-}

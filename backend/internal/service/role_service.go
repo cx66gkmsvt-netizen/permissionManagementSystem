@@ -2,21 +2,18 @@ package service
 
 import (
 	"errors"
-	"fmt"
 
 	"user-center/internal/model"
 	"user-center/internal/repository"
 )
 
 type RoleService struct {
-	roleRepo        *repository.RoleRepository
-	followUpService *FollowUpService
+	roleRepo *repository.RoleRepository
 }
 
 func NewRoleService() *RoleService {
 	return &RoleService{
-		roleRepo:        repository.NewRoleRepository(),
-		followUpService: NewFollowUpService(),
+		roleRepo: repository.NewRoleRepository(),
 	}
 }
 
@@ -36,7 +33,7 @@ func (s *RoleService) SelectAll() ([]model.SysRole, error) {
 }
 
 // Create 创建角色
-func (s *RoleService) Create(req *model.CreateRoleRequest, operatorID int64) error {
+func (s *RoleService) Create(req *model.CreateRoleRequest) error {
 	// 检查RoleKey唯一性
 	if !s.roleRepo.CheckRoleKeyUnique(req.RoleKey, 0) {
 		return errors.New("角色权限字符已存在")
@@ -67,17 +64,14 @@ func (s *RoleService) Create(req *model.CreateRoleRequest, operatorID int64) err
 
 	// 设置数据权限部门(自定义时)
 	if role.DataScope == "2" && len(req.DeptIDs) > 0 {
-		if err := s.roleRepo.SetRoleDepts(role.RoleID, req.DeptIDs); err != nil {
-			return err
-		}
+		return s.roleRepo.SetRoleDepts(role.RoleID, req.DeptIDs)
 	}
 
-	// 记录跟进
-	return s.followUpService.Record("sys_role", role.RoleID, fmt.Sprintf("创建角色: %s", role.RoleName), operatorID, "")
+	return nil
 }
 
 // Update 更新角色
-func (s *RoleService) Update(roleID int64, req *model.UpdateRoleRequest, operatorID int64) error {
+func (s *RoleService) Update(roleID int64, req *model.UpdateRoleRequest) error {
 	role, err := s.roleRepo.FindByID(roleID)
 	if err != nil {
 		return errors.New("角色不存在")
@@ -115,17 +109,14 @@ func (s *RoleService) Update(roleID int64, req *model.UpdateRoleRequest, operato
 
 	// 更新数据权限部门
 	if role.DataScope == "2" && req.DeptIDs != nil {
-		if err := s.roleRepo.SetRoleDepts(roleID, req.DeptIDs); err != nil {
-			return err
-		}
+		return s.roleRepo.SetRoleDepts(roleID, req.DeptIDs)
 	}
 
-	// 记录跟进
-	return s.followUpService.Record("sys_role", roleID, "更新角色信息", operatorID, "")
+	return nil
 }
 
 // Delete 删除角色
-func (s *RoleService) Delete(roleID int64, operatorID int64) error {
+func (s *RoleService) Delete(roleID int64) error {
 	role, err := s.roleRepo.FindByID(roleID)
 	if err != nil {
 		return errors.New("角色不存在")
@@ -133,11 +124,7 @@ func (s *RoleService) Delete(roleID int64, operatorID int64) error {
 	if role.RoleKey == "admin" {
 		return errors.New("不允许删除超级管理员角色")
 	}
-	if err := s.roleRepo.Delete(roleID); err != nil {
-		return err
-	}
-	// 记录跟进
-	return s.followUpService.Record("sys_role", roleID, "删除角色", operatorID, "")
+	return s.roleRepo.Delete(roleID)
 }
 
 // GetRoleMenuIDs 获取角色菜单ID

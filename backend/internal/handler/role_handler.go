@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"user-center/internal/middleware"
 	"user-center/internal/model"
 	"user-center/internal/pkg"
 	"user-center/internal/service"
@@ -106,9 +105,7 @@ func (h *RoleHandler) Create(c *gin.Context) {
 		return
 	}
 
-	// 109
-	operatorID := middleware.GetUserID(c)
-	if err := h.roleService.Create(&req, operatorID); err != nil {
+	if err := h.roleService.Create(&req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -138,9 +135,7 @@ func (h *RoleHandler) Update(c *gin.Context) {
 		return
 	}
 
-	// 139
-	operatorID := middleware.GetUserID(c)
-	if err := h.roleService.Update(roleID, &req, operatorID); err != nil {
+	if err := h.roleService.Update(roleID, &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -162,9 +157,7 @@ func (h *RoleHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	// 161
-	operatorID := middleware.GetUserID(c)
-	if err := h.roleService.Delete(roleID, operatorID); err != nil {
+	if err := h.roleService.Delete(roleID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}

@@ -10,18 +10,16 @@ import (
 )
 
 type UserService struct {
-	userRepo        *repository.UserRepository
-	roleRepo        *repository.RoleRepository
-	deptRepo        *repository.DeptRepository
-	followUpService *FollowUpService
+	userRepo *repository.UserRepository
+	roleRepo *repository.RoleRepository
+	deptRepo *repository.DeptRepository
 }
 
 func NewUserService() *UserService {
 	return &UserService{
-		userRepo:        repository.NewUserRepository(),
-		roleRepo:        repository.NewRoleRepository(),
-		deptRepo:        repository.NewDeptRepository(),
-		followUpService: NewFollowUpService(),
+		userRepo: repository.NewUserRepository(),
+		roleRepo: repository.NewRoleRepository(),
+		deptRepo: repository.NewDeptRepository(),
 	}
 }
 
@@ -63,9 +61,6 @@ func (s *UserService) Create(req *model.CreateUserRequest, operatorID int64) err
 		return err
 	}
 
-	// 记录跟进
-	s.followUpService.Record("sys_user", user.UserID, fmt.Sprintf("创建用户: %s", user.UserName), operatorID, "")
-
 	// 设置角色
 	if len(req.RoleIDs) > 0 {
 		return s.userRepo.SetUserRoles(user.UserID, req.RoleIDs)
@@ -74,7 +69,7 @@ func (s *UserService) Create(req *model.CreateUserRequest, operatorID int64) err
 }
 
 // Update 更新用户
-func (s *UserService) Update(userID int64, req *model.UpdateUserRequest, operatorID int64) error {
+func (s *UserService) Update(userID int64, req *model.UpdateUserRequest) error {
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		return errors.New("用户不存在")
@@ -95,9 +90,6 @@ func (s *UserService) Update(userID int64, req *model.UpdateUserRequest, operato
 		return err
 	}
 
-	// 记录跟进
-	s.followUpService.Record("sys_user", userID, "更新用户资料", operatorID, "")
-
 	// 更新角色
 	if req.RoleIDs != nil {
 		return s.userRepo.SetUserRoles(userID, req.RoleIDs)
@@ -106,16 +98,11 @@ func (s *UserService) Update(userID int64, req *model.UpdateUserRequest, operato
 }
 
 // Delete 删除用户
-func (s *UserService) Delete(userID int64, operatorID int64) error {
+func (s *UserService) Delete(userID int64) error {
 	if userID == 1 {
 		return errors.New("不允许删除超级管理员")
 	}
-	if err := s.userRepo.Delete(userID); err != nil {
-		return err
-	}
-
-	// 记录跟进
-	return s.followUpService.Record("sys_user", userID, "删除用户", operatorID, "")
+	return s.userRepo.Delete(userID)
 }
 
 // GetUserRoles 获取用户角色

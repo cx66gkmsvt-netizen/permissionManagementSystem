@@ -1,20 +1,17 @@
 package service
 
 import (
-	"fmt"
 	"user-center/internal/model"
 	"user-center/internal/repository"
 )
 
 type DeptService struct {
-	deptRepo        *repository.DeptRepository
-	followUpService *FollowUpService
+	deptRepo *repository.DeptRepository
 }
 
 func NewDeptService() *DeptService {
 	return &DeptService{
-		deptRepo:        repository.NewDeptRepository(),
-		followUpService: NewFollowUpService(),
+		deptRepo: repository.NewDeptRepository(),
 	}
 }
 
@@ -34,7 +31,7 @@ func (s *DeptService) SelectAll() ([]model.SysDept, error) {
 }
 
 // Create 创建部门
-func (s *DeptService) Create(req *model.CreateDeptRequest, operatorID int64) error {
+func (s *DeptService) Create(req *model.CreateDeptRequest) error {
 	dept := &model.SysDept{
 		ParentID: req.ParentID,
 		DeptName: req.DeptName,
@@ -44,16 +41,11 @@ func (s *DeptService) Create(req *model.CreateDeptRequest, operatorID int64) err
 		Email:    req.Email,
 		Status:   req.Status,
 	}
-	if err := s.deptRepo.Create(dept); err != nil {
-		return err
-	}
-
-	// 记录跟进
-	return s.followUpService.Record("sys_dept", dept.DeptID, fmt.Sprintf("创建部门: %s", dept.DeptName), operatorID, "")
+	return s.deptRepo.Create(dept)
 }
 
 // Update 更新部门
-func (s *DeptService) Update(deptID int64, req *model.CreateDeptRequest, operatorID int64) error {
+func (s *DeptService) Update(deptID int64, req *model.CreateDeptRequest) error {
 	dept, err := s.deptRepo.FindByID(deptID)
 	if err != nil {
 		return err
@@ -67,19 +59,10 @@ func (s *DeptService) Update(deptID int64, req *model.CreateDeptRequest, operato
 	dept.Email = req.Email
 	dept.Status = req.Status
 
-	if err := s.deptRepo.Update(dept); err != nil {
-		return err
-	}
-
-	// 记录跟进
-	return s.followUpService.Record("sys_dept", deptID, "更新部门信息", operatorID, "")
+	return s.deptRepo.Update(dept)
 }
 
 // Delete 删除部门
-func (s *DeptService) Delete(deptID int64, operatorID int64) error {
-	if err := s.deptRepo.Delete(deptID); err != nil {
-		return err
-	}
-	// 记录跟进
-	return s.followUpService.Record("sys_dept", deptID, "删除部门", operatorID, "")
+func (s *DeptService) Delete(deptID int64) error {
+	return s.deptRepo.Delete(deptID)
 }
