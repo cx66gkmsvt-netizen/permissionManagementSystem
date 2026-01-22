@@ -12,19 +12,19 @@ type BaseModel struct {
 
 // SysUser 用户表
 type SysUser struct {
-	UserID    int64   `json:"userId" gorm:"primaryKey;autoIncrement;column:user_id"`
-	DeptID    *int64  `json:"deptId" gorm:"column:dept_id"`
-	UserName  string  `json:"userName" gorm:"column:user_name;size:30;not null;uniqueIndex"`
-	NickName  string  `json:"nickName" gorm:"column:nick_name;size:30"`
-	Password  string  `json:"-" gorm:"column:password;size:100;not null"`
-	Email     string  `json:"email" gorm:"column:email;size:50"`
-	Phone     string  `json:"phone" gorm:"column:phone;size:11"`
-	Avatar    string  `json:"avatar" gorm:"column:avatar;size:255"`
-	Status    string  `json:"status" gorm:"column:status;size:1;default:0"` // 0正常 1停用
-	DelFlag   string  `json:"-" gorm:"column:del_flag;size:1;default:0"`    // 0存在 2删除
-	LoginIP   string  `json:"loginIp" gorm:"column:login_ip;size:128"`
+	UserID    int64      `json:"userId" gorm:"primaryKey;autoIncrement;column:user_id"`
+	DeptID    *int64     `json:"deptId" gorm:"column:dept_id"`
+	UserName  string     `json:"userName" gorm:"column:user_name;size:30;not null;uniqueIndex"`
+	NickName  string     `json:"nickName" gorm:"column:nick_name;size:30"`
+	Password  string     `json:"-" gorm:"column:password;size:100;not null"`
+	Email     string     `json:"email" gorm:"column:email;size:50"`
+	Phone     string     `json:"phone" gorm:"column:phone;size:11"`
+	Avatar    string     `json:"avatar" gorm:"column:avatar;size:255"`
+	Status    string     `json:"status" gorm:"column:status;size:1;default:0"` // 0正常 1停用
+	DelFlag   string     `json:"-" gorm:"column:del_flag;size:1;default:0"`    // 0存在 2删除
+	LoginIP   string     `json:"loginIp" gorm:"column:login_ip;size:128"`
 	LoginDate *time.Time `json:"loginDate" gorm:"column:login_date"`
-	CreateBy  *int64  `json:"createBy" gorm:"column:create_by"`
+	CreateBy  *int64     `json:"createBy" gorm:"column:create_by"`
 	BaseModel
 
 	// 关联
@@ -122,4 +122,20 @@ type SysOperLog struct {
 
 func (SysOperLog) TableName() string {
 	return "sys_oper_log"
+}
+
+// SysFollowUp 跟进记录表
+type SysFollowUp struct {
+	ID           int64     `json:"id" gorm:"primaryKey;autoIncrement;column:id;comment:主键ID"`
+	TargetType   string    `json:"targetType" gorm:"column:target_type;size:50;index;comment:目标类型"` // 目标类型，如 sys_user
+	TargetID     int64     `json:"targetId" gorm:"column:target_id;index;comment:目标ID"`             // 目标ID
+	Content      string    `json:"content" gorm:"column:content;type:text;comment:跟进内容"`            // 跟进内容
+	OperUserID   *int64    `json:"operUserId" gorm:"column:oper_user_id;comment:操作人ID"`             // 操作人ID
+	OperUserName string    `json:"operUserName" gorm:"column:oper_user_name;size:50;comment:操作人姓名"` // 操作人姓名
+	OperTime     time.Time `json:"operTime" gorm:"column:oper_time;autoCreateTime;comment:操作时间"`    // 操作时间
+	Remark       string    `json:"remark" gorm:"column:remark;size:500;comment:备注"`                 // 备注
+}
+
+func (SysFollowUp) TableName() string {
+	return "sys_follow_up"
 }
