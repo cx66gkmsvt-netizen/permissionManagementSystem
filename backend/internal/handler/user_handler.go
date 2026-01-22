@@ -127,7 +127,9 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.userService.Update(userID, &req); err != nil {
+	// 130
+	operatorID := middleware.GetUserID(c)
+	if err := h.userService.Update(userID, &req, operatorID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -149,7 +151,8 @@ func (h *UserHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.userService.Delete(userID); err != nil {
+	operatorID := middleware.GetUserID(c)
+	if err := h.userService.Delete(userID, operatorID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}

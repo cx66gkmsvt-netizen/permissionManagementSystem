@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS sys_role (
   status       CHAR(1) DEFAULT '0' COMMENT '状态(0正常 1停用)',
   del_flag     CHAR(1) DEFAULT '0' COMMENT '删除标志',
   remark       VARCHAR(500) COMMENT '备注',
-  create_time  DATETIME DEFAULT CURRENT_TIMESTAMP,
-  update_time  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  create_time  DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   UNIQUE KEY idx_role_key (role_key)
 ) ENGINE=InnoDB COMMENT='角色信息表';
 
@@ -61,8 +61,8 @@ CREATE TABLE IF NOT EXISTS sys_dept (
   email        VARCHAR(50) COMMENT '邮箱',
   status       CHAR(1) DEFAULT '0' COMMENT '状态(0正常 1停用)',
   del_flag     CHAR(1) DEFAULT '0' COMMENT '删除标志',
-  create_time  DATETIME DEFAULT CURRENT_TIMESTAMP,
-  update_time  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  create_time  DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB COMMENT='部门表';
 
 -- =====================================================
@@ -80,8 +80,8 @@ CREATE TABLE IF NOT EXISTS sys_menu (
   sort         INT DEFAULT 0 COMMENT '显示顺序',
   visible      CHAR(1) DEFAULT '0' COMMENT '显示状态(0显示 1隐藏)',
   status       CHAR(1) DEFAULT '0' COMMENT '状态(0正常 1停用)',
-  create_time  DATETIME DEFAULT CURRENT_TIMESTAMP,
-  update_time  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  create_time  DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB COMMENT='菜单权限表';
 
 -- =====================================================
