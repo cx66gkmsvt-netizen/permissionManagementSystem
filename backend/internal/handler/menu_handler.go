@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"user-center/internal/middleware"
 	"user-center/internal/model"
 	"user-center/internal/pkg"
 	"user-center/internal/service"
@@ -88,7 +89,9 @@ func (h *MenuHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if err := h.menuService.Create(&req); err != nil {
+	// 91
+	operatorID := middleware.GetUserID(c)
+	if err := h.menuService.Create(&req, operatorID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -118,7 +121,9 @@ func (h *MenuHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.menuService.Update(menuID, &req); err != nil {
+	// 121
+	operatorID := middleware.GetUserID(c)
+	if err := h.menuService.Update(menuID, &req, operatorID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -140,7 +145,9 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.menuService.Delete(menuID); err != nil {
+	// 143
+	operatorID := middleware.GetUserID(c)
+	if err := h.menuService.Delete(menuID, operatorID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
