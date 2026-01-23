@@ -112,6 +112,17 @@ func main() {
 			menuGroup.PUT("/:id", middleware.OperLog("菜单管理", 2), menuHandler.Update)
 			menuGroup.DELETE("/:id", middleware.OperLog("菜单管理", 3), menuHandler.Delete)
 		}
+
+		// CC管理
+		ccHandler := handler.NewCCHandler()
+		ccGroup := auth.Group("/system/cc")
+		{
+			ccGroup.GET("", ccHandler.List)
+			ccGroup.GET("/:id", ccHandler.Get)
+			ccGroup.POST("", middleware.OperLog("CC管理", 1), ccHandler.Create)
+			ccGroup.PUT("/:id", middleware.OperLog("CC管理", 2), ccHandler.Update)
+			ccGroup.DELETE("/:id", middleware.OperLog("CC管理", 3), ccHandler.Delete)
+		}
 	}
 
 	// 启动服务

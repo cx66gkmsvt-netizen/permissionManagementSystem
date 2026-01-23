@@ -49,6 +49,12 @@ const routes = [
                 name: 'Dept',
                 component: () => import('@/views/system/dept/index.vue'),
                 meta: { title: '部门管理', permission: 'system:dept:list' }
+            },
+            {
+                path: 'system/cc',
+                name: 'CC',
+                component: () => import('@/views/cc/index.vue'),
+                meta: { title: 'CC管理', permission: 'system:cc:list' }
             }
         ]
     },

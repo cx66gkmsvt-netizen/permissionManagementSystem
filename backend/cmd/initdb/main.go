@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("连接MySQL失败: %v", err)
 	}
-	
+
 	// 创建数据库
 	db.Exec("CREATE DATABASE IF NOT EXISTS user_center DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
 	log.Println("✓ 数据库 user_center 创建成功")
@@ -146,6 +146,26 @@ func createTables(db *gorm.DB) {
 		error_msg TEXT,
 		oper_time DATETIME DEFAULT CURRENT_TIMESTAMP
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`)
+
+	// CC成员表
+	db.Exec(`CREATE TABLE IF NOT EXISTS cc_member (
+		id BIGINT PRIMARY KEY AUTO_INCREMENT,
+		name VARCHAR(50) NOT NULL,
+		nick_name VARCHAR(50),
+		mobile VARCHAR(11) NOT NULL,
+		wechat VARCHAR(50),
+		cno VARCHAR(20),
+		cloud_account VARCHAR(50),
+		team_id BIGINT,
+		squad_id BIGINT,
+		balance DECIMAL(10,2) DEFAULT 0,
+		status CHAR(1) DEFAULT '0',
+		del_flag CHAR(1) DEFAULT '0',
+		create_by VARCHAR(50),
+		update_by VARCHAR(50),
+		create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+		update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`)
 }
 
 func insertData(db *gorm.DB) {
@@ -172,7 +192,7 @@ func insertData(db *gorm.DB) {
 
 	// 插入用户
 	db.Exec("INSERT INTO sys_user (user_id, dept_id, user_name, nick_name, password, status) VALUES (1, 1, 'admin', '超级管理员', ?, '0')", string(hashedPwd))
-	
+
 	// 用户角色关联
 	db.Exec("INSERT INTO sys_user_role (user_id, role_id) VALUES (1, 1)")
 
@@ -195,6 +215,10 @@ func insertData(db *gorm.DB) {
 		"INSERT INTO sys_menu (menu_id, parent_id, menu_name, menu_type, perms, sort) VALUES (130, 5, '部门新增', 'F', 'system:dept:add', 1)",
 		"INSERT INTO sys_menu (menu_id, parent_id, menu_name, menu_type, perms, sort) VALUES (131, 5, '部门修改', 'F', 'system:dept:edit', 2)",
 		"INSERT INTO sys_menu (menu_id, parent_id, menu_name, menu_type, perms, sort) VALUES (132, 5, '部门删除', 'F', 'system:dept:remove', 3)",
+		"INSERT INTO sys_menu (menu_id, parent_id, menu_name, menu_type, path, component, perms, icon, sort) VALUES (6, 1, 'CC管理', 'C', 'cc', 'cc/index', 'system:cc:list', 'Service', 5)",
+		"INSERT INTO sys_menu (menu_id, parent_id, menu_name, menu_type, perms, sort) VALUES (140, 6, 'CC新增', 'F', 'system:cc:add', 1)",
+		"INSERT INTO sys_menu (menu_id, parent_id, menu_name, menu_type, perms, sort) VALUES (141, 6, 'CC修改', 'F', 'system:cc:edit', 2)",
+		"INSERT INTO sys_menu (menu_id, parent_id, menu_name, menu_type, perms, sort) VALUES (142, 6, 'CC删除', 'F', 'system:cc:remove', 3)",
 	}
 	for _, sql := range menus {
 		db.Exec(sql)
@@ -219,6 +243,10 @@ func insertData(db *gorm.DB) {
 		"INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 130)",
 		"INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 131)",
 		"INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 132)",
+		"INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 6)",
+		"INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 140)",
+		"INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 141)",
+		"INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 142)",
 	}
 	for _, sql := range roleMenus {
 		db.Exec(sql)
