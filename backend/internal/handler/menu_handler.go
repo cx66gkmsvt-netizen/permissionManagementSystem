@@ -88,7 +88,7 @@ func (h *MenuHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if err := h.menuService.Create(&req); err != nil {
+	if err := h.menuService.Create(c.Request.Context(), &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -118,7 +118,7 @@ func (h *MenuHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.menuService.Update(menuID, &req); err != nil {
+	if err := h.menuService.Update(c.Request.Context(), menuID, &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -140,7 +140,7 @@ func (h *MenuHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.menuService.Delete(menuID); err != nil {
+	if err := h.menuService.Delete(c.Request.Context(), menuID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}

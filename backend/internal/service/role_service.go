@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"errors"
 
 	"user-center/internal/model"
+	"user-center/internal/pkg/trace"
 	"user-center/internal/repository"
 )
 
@@ -33,9 +35,12 @@ func (s *RoleService) SelectAll() ([]model.SysRole, error) {
 }
 
 // Create 创建角色
-func (s *RoleService) Create(req *model.CreateRoleRequest) error {
+func (s *RoleService) Create(ctx context.Context, req *model.CreateRoleRequest) error {
+	trace.AddStep(ctx, "Start Create Role", "RoleName: %s", req.RoleName)
+
 	// 检查RoleKey唯一性
 	if !s.roleRepo.CheckRoleKeyUnique(req.RoleKey, 0) {
+		trace.AddStep(ctx, "Check RoleKey Failed", "RoleKey %s exists", req.RoleKey)
 		return errors.New("角色权限字符已存在")
 	}
 
@@ -51,12 +56,15 @@ func (s *RoleService) Create(req *model.CreateRoleRequest) error {
 		role.DataScope = "1" // 默认全部数据
 	}
 
+	trace.AddStep(ctx, "DB Create", "Saving role")
 	if err := s.roleRepo.Create(role); err != nil {
+		trace.AddStep(ctx, "DB Create Error", "Error: %v", err)
 		return err
 	}
 
 	// 设置菜单权限
 	if len(req.MenuIDs) > 0 {
+		trace.AddStep(ctx, "Set Role Menus", "MenuIDs: %v", req.MenuIDs)
 		if err := s.roleRepo.SetRoleMenus(role.RoleID, req.MenuIDs); err != nil {
 			return err
 		}
@@ -64,6 +72,7 @@ func (s *RoleService) Create(req *model.CreateRoleRequest) error {
 
 	// 设置数据权限部门(自定义时)
 	if role.DataScope == "2" && len(req.DeptIDs) > 0 {
+		trace.AddStep(ctx, "Set Role Depts", "DeptIDs: %v", req.DeptIDs)
 		return s.roleRepo.SetRoleDepts(role.RoleID, req.DeptIDs)
 	}
 
@@ -71,9 +80,12 @@ func (s *RoleService) Create(req *model.CreateRoleRequest) error {
 }
 
 // Update 更新角色
-func (s *RoleService) Update(roleID int64, req *model.UpdateRoleRequest) error {
+func (s *RoleService) Update(ctx context.Context, roleID int64, req *model.UpdateRoleRequest) error {
+	trace.AddStep(ctx, "Start Update Role", "RoleID: %d", roleID)
+
 	role, err := s.roleRepo.FindByID(roleID)
 	if err != nil {
+		trace.AddStep(ctx, "Find Role Failed", "Role not found")
 		return errors.New("角色不存在")
 	}
 
@@ -85,6 +97,7 @@ func (s *RoleService) Update(roleID int64, req *model.UpdateRoleRequest) error {
 	// 检查RoleKey唯一性
 	if req.RoleKey != "" && req.RoleKey != role.RoleKey {
 		if !s.roleRepo.CheckRoleKeyUnique(req.RoleKey, roleID) {
+			trace.AddStep(ctx, "Check RoleKey Failed", "RoleKey %s exists", req.RoleKey)
 			return errors.New("角色权限字符已存在")
 		}
 		role.RoleKey = req.RoleKey
@@ -96,12 +109,15 @@ func (s *RoleService) Update(roleID int64, req *model.UpdateRoleRequest) error {
 	role.Status = req.Status
 	role.Remark = req.Remark
 
+	trace.AddStep(ctx, "DB Update", "Updating role")
 	if err := s.roleRepo.Update(role); err != nil {
+		trace.AddStep(ctx, "DB Update Error", "Error: %v", err)
 		return err
 	}
 
 	// 更新菜单权限
 	if req.MenuIDs != nil {
+		trace.AddStep(ctx, "Update Role Menus", "MenuIDs: %v", req.MenuIDs)
 		if err := s.roleRepo.SetRoleMenus(roleID, req.MenuIDs); err != nil {
 			return err
 		}
@@ -109,6 +125,7 @@ func (s *RoleService) Update(roleID int64, req *model.UpdateRoleRequest) error {
 
 	// 更新数据权限部门
 	if role.DataScope == "2" && req.DeptIDs != nil {
+		trace.AddStep(ctx, "Update Role Depts", "DeptIDs: %v", req.DeptIDs)
 		return s.roleRepo.SetRoleDepts(roleID, req.DeptIDs)
 	}
 
@@ -116,9 +133,11 @@ func (s *RoleService) Update(roleID int64, req *model.UpdateRoleRequest) error {
 }
 
 // Delete 删除角色
-func (s *RoleService) Delete(roleID int64) error {
+func (s *RoleService) Delete(ctx context.Context, roleID int64) error {
+	trace.AddStep(ctx, "Start Delete Role", "RoleID: %d", roleID)
 	role, err := s.roleRepo.FindByID(roleID)
 	if err != nil {
+		trace.AddStep(ctx, "Find Role Failed", "Error: %v", err)
 		return errors.New("角色不存在")
 	}
 	if role.RoleKey == "admin" {

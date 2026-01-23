@@ -117,6 +117,7 @@ type SysOperLog struct {
 	JSONResult    string    `json:"jsonResult" gorm:"column:json_result;type:text"`
 	Status        string    `json:"status" gorm:"column:status;size:1;default:0"`
 	ErrorMsg      string    `json:"errorMsg" gorm:"column:error_msg;type:text"`
+	TraceContent  string    `json:"traceContent" gorm:"column:trace_content;type:longtext"` // 追踪内容
 	OperTime      time.Time `json:"operTime" gorm:"column:oper_time;autoCreateTime"`
 }
 

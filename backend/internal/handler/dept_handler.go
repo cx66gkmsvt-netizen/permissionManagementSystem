@@ -89,7 +89,7 @@ func (h *DeptHandler) Create(c *gin.Context) {
 	}
 
 	// 90
-	if err := h.deptService.Create(&req); err != nil {
+	if err := h.deptService.Create(c.Request.Context(), &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -119,7 +119,7 @@ func (h *DeptHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.deptService.Update(deptID, &req); err != nil {
+	if err := h.deptService.Update(c.Request.Context(), deptID, &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -141,7 +141,7 @@ func (h *DeptHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.deptService.Delete(deptID); err != nil {
+	if err := h.deptService.Delete(c.Request.Context(), deptID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}

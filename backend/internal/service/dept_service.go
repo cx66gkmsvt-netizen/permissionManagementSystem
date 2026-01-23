@@ -1,7 +1,10 @@
 package service
 
 import (
+	"context"
+
 	"user-center/internal/model"
+	"user-center/internal/pkg/trace"
 	"user-center/internal/repository"
 )
 
@@ -31,7 +34,8 @@ func (s *DeptService) SelectAll() ([]model.SysDept, error) {
 }
 
 // Create 创建部门
-func (s *DeptService) Create(req *model.CreateDeptRequest) error {
+func (s *DeptService) Create(ctx context.Context, req *model.CreateDeptRequest) error {
+	trace.AddStep(ctx, "Start Create Dept", "DeptName: %s", req.DeptName)
 	dept := &model.SysDept{
 		ParentID: req.ParentID,
 		DeptName: req.DeptName,
@@ -41,13 +45,16 @@ func (s *DeptService) Create(req *model.CreateDeptRequest) error {
 		Email:    req.Email,
 		Status:   req.Status,
 	}
+	trace.AddStep(ctx, "DB Create", "Saving dept")
 	return s.deptRepo.Create(dept)
 }
 
 // Update 更新部门
-func (s *DeptService) Update(deptID int64, req *model.CreateDeptRequest) error {
+func (s *DeptService) Update(ctx context.Context, deptID int64, req *model.CreateDeptRequest) error {
+	trace.AddStep(ctx, "Start Update Dept", "DeptID: %d", deptID)
 	dept, err := s.deptRepo.FindByID(deptID)
 	if err != nil {
+		trace.AddStep(ctx, "Find Dept Failed", "Error: %v", err)
 		return err
 	}
 
@@ -59,10 +66,12 @@ func (s *DeptService) Update(deptID int64, req *model.CreateDeptRequest) error {
 	dept.Email = req.Email
 	dept.Status = req.Status
 
+	trace.AddStep(ctx, "DB Update", "Updating dept")
 	return s.deptRepo.Update(dept)
 }
 
 // Delete 删除部门
-func (s *DeptService) Delete(deptID int64) error {
+func (s *DeptService) Delete(ctx context.Context, deptID int64) error {
+	trace.AddStep(ctx, "Start Delete Dept", "DeptID: %d", deptID)
 	return s.deptRepo.Delete(deptID)
 }

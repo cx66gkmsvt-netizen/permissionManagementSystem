@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"user-center/internal/model"
+	"user-center/internal/pkg/trace"
 	"user-center/internal/repository"
 )
 
@@ -20,6 +21,9 @@ func OperLog(title string, businessType int) gin.HandlerFunc {
 		operUrl := c.Request.URL.Path
 		operIp := c.ClientIP()
 		method := c.HandlerName()
+
+		// 初始化 Trace Context
+		c.Request = c.Request.WithContext(trace.WithContext(c.Request.Context()))
 
 		var operParam string
 		if reqMethod != "GET" {
@@ -45,8 +49,11 @@ func OperLog(title string, businessType int) gin.HandlerFunc {
 			errorMsg = c.Errors.String()
 		}
 
+		// 获取追踪内容 (必须在并发前获取)
+		traceContent := trace.GetTraceString(c.Request.Context())
+
 		// 5. 异步记录日志 (传递捕获的变量)
-		go func(uid int64, uname, m, reqM, url, ip, param, s, errMsg string, t time.Time) {
+		go func(uid int64, uname, m, reqM, url, ip, param, s, errMsg, trc string, t time.Time) {
 			log := &model.SysOperLog{
 				Title:         title,
 				BusinessType:  businessType,
@@ -59,9 +66,10 @@ func OperLog(title string, businessType int) gin.HandlerFunc {
 				OperParam:     param,
 				Status:        s,
 				ErrorMsg:      errMsg,
+				TraceContent:  trc,
 				OperTime:      t,
 			}
 			repository.NewOperLogRepository().Create(log)
-		}(userID, userName, method, reqMethod, operUrl, operIp, operParam, status, errorMsg, start)
+		}(userID, userName, method, reqMethod, operUrl, operIp, operParam, status, errorMsg, traceContent, start)
 	}
 }

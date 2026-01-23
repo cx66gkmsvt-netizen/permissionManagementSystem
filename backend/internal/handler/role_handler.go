@@ -105,7 +105,7 @@ func (h *RoleHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if err := h.roleService.Create(&req); err != nil {
+	if err := h.roleService.Create(c.Request.Context(), &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -135,7 +135,7 @@ func (h *RoleHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.roleService.Update(roleID, &req); err != nil {
+	if err := h.roleService.Update(c.Request.Context(), roleID, &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -157,7 +157,7 @@ func (h *RoleHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.roleService.Delete(roleID); err != nil {
+	if err := h.roleService.Delete(c.Request.Context(), roleID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}

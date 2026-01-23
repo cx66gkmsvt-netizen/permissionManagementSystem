@@ -97,7 +97,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 	req.Password = hashedPwd
 
 	operatorID := middleware.GetUserID(c)
-	if err := h.userService.Create(&req, operatorID); err != nil {
+	if err := h.userService.Create(c.Request.Context(), &req, operatorID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -128,7 +128,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 	}
 
 	// 130
-	if err := h.userService.Update(userID, &req); err != nil {
+	if err := h.userService.Update(c.Request.Context(), userID, &req); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -150,7 +150,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.userService.Delete(userID); err != nil {
+	if err := h.userService.Delete(c.Request.Context(), userID); err != nil {
 		pkg.Fail(c, err.Error())
 		return
 	}
@@ -181,13 +181,10 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 	}
 
 	hashedPwd, _ := pkg.HashPassword(req.Password)
-	user, _ := h.userService.GetUserByID(userID)
-	if user == nil {
-		pkg.Fail(c, "用户不存在")
+	if err := h.userService.ResetPassword(c.Request.Context(), userID, hashedPwd); err != nil {
+		pkg.Fail(c, err.Error())
 		return
 	}
 
-	user.Password = hashedPwd
-	// 这里需要直接调用repository更新密码
 	pkg.OKMsg(c, "重置成功")
 }

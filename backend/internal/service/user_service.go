@@ -1,11 +1,13 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
 
 	"user-center/internal/model"
+	"user-center/internal/pkg/trace"
 	"user-center/internal/repository"
 )
 
@@ -40,9 +42,12 @@ func (s *UserService) List(query *model.UserQuery, currentUser *model.SysUser) (
 }
 
 // Create 创建用户
-func (s *UserService) Create(req *model.CreateUserRequest, operatorID int64) error {
+func (s *UserService) Create(ctx context.Context, req *model.CreateUserRequest, operatorID int64) error {
+	trace.AddStep(ctx, "Start Create User", "UserName: %s", req.UserName)
+
 	// 检查用户名唯一性
 	if !s.userRepo.CheckUserNameUnique(req.UserName, 0) {
+		trace.AddStep(ctx, "Check Unique Failed", "Username %s already exists", req.UserName)
 		return errors.New("用户名已存在")
 	}
 
@@ -57,21 +62,27 @@ func (s *UserService) Create(req *model.CreateUserRequest, operatorID int64) err
 		CreateBy: &operatorID,
 	}
 
+	trace.AddStep(ctx, "DB Create", "Saving user to database")
 	if err := s.userRepo.Create(user); err != nil {
+		trace.AddStep(ctx, "DB Create Error", "Error: %v", err)
 		return err
 	}
 
 	// 设置角色
 	if len(req.RoleIDs) > 0 {
+		trace.AddStep(ctx, "Set Roles", "Assigning roles: %v", req.RoleIDs)
 		return s.userRepo.SetUserRoles(user.UserID, req.RoleIDs)
 	}
 	return nil
 }
 
 // Update 更新用户
-func (s *UserService) Update(userID int64, req *model.UpdateUserRequest) error {
+func (s *UserService) Update(ctx context.Context, userID int64, req *model.UpdateUserRequest) error {
+	trace.AddStep(ctx, "Start Update User", "UserID: %d", userID)
+
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
+		trace.AddStep(ctx, "Find User Failed", "User not found")
 		return errors.New("用户不存在")
 	}
 
@@ -86,23 +97,41 @@ func (s *UserService) Update(userID int64, req *model.UpdateUserRequest) error {
 	user.Phone = req.Phone
 	user.Status = req.Status
 
+	trace.AddStep(ctx, "DB Update", "Updating user record")
 	if err := s.userRepo.Update(user); err != nil {
+		trace.AddStep(ctx, "DB Update Failed", "Error: %v", err)
 		return err
 	}
 
 	// 更新角色
 	if req.RoleIDs != nil {
+		trace.AddStep(ctx, "Update Roles", "New roles: %v", req.RoleIDs)
 		return s.userRepo.SetUserRoles(userID, req.RoleIDs)
 	}
 	return nil
 }
 
 // Delete 删除用户
-func (s *UserService) Delete(userID int64) error {
+func (s *UserService) Delete(ctx context.Context, userID int64) error {
+	trace.AddStep(ctx, "Start Delete User", "UserID: %d", userID)
 	if userID == 1 {
 		return errors.New("不允许删除超级管理员")
 	}
+	trace.AddStep(ctx, "DB Delete", "Deleting user record")
 	return s.userRepo.Delete(userID)
+}
+
+// ResetPassword 重置密码
+func (s *UserService) ResetPassword(ctx context.Context, userID int64, password string) error {
+	trace.AddStep(ctx, "Start Reset Password", "UserID: %d", userID)
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		trace.AddStep(ctx, "Find User Failed", "User not found")
+		return errors.New("用户不存在")
+	}
+	user.Password = password
+	trace.AddStep(ctx, "DB Update Password", "Updating password")
+	return s.userRepo.Update(user)
 }
 
 // GetUserRoles 获取用户角色
