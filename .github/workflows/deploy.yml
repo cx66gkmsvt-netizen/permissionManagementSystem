@@ -1,26 +1,66 @@
-name: Deploy to Server
+name: Deploy to Tencent Cloud
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
+      - uses: actions/checkout@v4
+
+      # 1. Build Backend (Go)
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Build Backend
+        run: |
+          cd backend
+          go mod download
+          GOOS=linux GOARCH=amd64 go build -o ../deploy/server cmd/server/main.go
+
+      # 2. Build Frontend (Vue)
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+          # Move dist content to deploy/html
+          rm -rf ../deploy/html
+          mkdir -p ../deploy/html
+          cp -r dist/* ../deploy/html/
+
+      # 3. Deploy to Server
+      - name: Copy files via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
+          source: "deploy/*"
+          target: "/root"
+
+      # 4. Restart Services
+      - name: Restart Services via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
           script: |
-            cd /opt/user-center
-            # Force sync with remote
-            git fetch --all
-            git reset --hard origin/main
-            # Rebuild and restart
-            ./deploy.sh build
-            ./deploy.sh restart
+            cd /root/deploy
+            chmod +x server
+            # Ensure permissions for nginx
+            chmod -R 755 html
+            # Restart containers
+            docker-compose down
+            docker-compose up -d
+            echo "Deployment Success!"
