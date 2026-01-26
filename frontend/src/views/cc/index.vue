@@ -190,6 +190,9 @@
 </template>
 
 <script setup>
+defineOptions({
+  name: 'CC'
+})
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listCC, getCC, createCC, updateCC, deleteCC } from '@/api/cc'

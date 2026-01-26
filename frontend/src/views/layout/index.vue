@@ -74,11 +74,16 @@
         </div>
       </div>
       
+      <!-- 标签页 -->
+      <TagsView />
+
       <!-- 内容区 -->
       <div class="layout-content">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
-            <component :is="Component" />
+            <keep-alive :include="cachedViews">
+              <component :is="Component" :key="$route.fullPath" />
+            </keep-alive>
           </transition>
         </router-view>
       </div>
@@ -91,12 +96,16 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import { useTagsViewStore } from '@/stores/tagsView'
+import TagsView from '@/components/TagsView/index.vue'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const tagsViewStore = useTagsViewStore()
 
 const isCollapsed = ref(false)
+const cachedViews = computed(() => tagsViewStore.cachedViews)
 
 const activeMenu = computed(() => route.path)
 
@@ -121,6 +130,58 @@ const handleCommand = (command) => {
 </script>
 
 <style scoped>
+.layout-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.layout-sidebar {
+  width: 220px;
+  height: 100%;
+  background-color: #304156;
+  color: #fff;
+  transition: width 0.3s;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.layout-sidebar.collapsed {
+  width: 64px;
+}
+
+.logo {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #2b3648;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #f0f2f5;
+}
+
+.layout-header {
+  height: 50px;
+  background-color: #fff;
+  border-bottom: 1px solid #dcdfe6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+}
+
 .header-left {
   display: flex;
   align-items: center;
@@ -153,5 +214,22 @@ const handleCommand = (command) => {
 
 .user-name {
   font-size: 14px;
+}
+
+.layout-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* fade transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
