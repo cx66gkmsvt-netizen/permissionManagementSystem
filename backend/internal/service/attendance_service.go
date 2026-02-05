@@ -40,7 +40,7 @@ func (s *AttendanceService) GetAttendanceList(query *model.CCQuery, dates []stri
 		return nil, err
 	}
 
-	ccList := result.Rows.([]*model.CCMember)
+	ccList := result.Rows.([]model.CCMember)
 	var attendanceList []map[string]interface{}
 
 	for _, cc := range ccList {

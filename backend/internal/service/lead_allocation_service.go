@@ -63,7 +63,7 @@ func (s *LeadAllocationService) GetAllocationList(query *model.LeadAllocationQue
 		return nil, err
 	}
 
-	ccList := ccResult.Rows.([]*model.CCMember)
+	ccList := ccResult.Rows.([]model.CCMember)
 	var allocations []LeadAllocationInfo
 
 	for _, cc := range ccList {
