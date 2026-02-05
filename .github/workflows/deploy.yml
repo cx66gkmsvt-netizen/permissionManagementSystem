@@ -60,6 +60,10 @@ jobs:
             chmod +x server
             # Ensure permissions for nginx
             chmod -R 755 html
+            # Cleanup legacy containers (with hyphens) if they exist
+            docker stop user-center-backend user-center-frontend || true
+            docker rm user-center-backend user-center-frontend || true
+            
             # Restart containers with rebuild to pick up new binary
             docker-compose down
             docker-compose up -d --build
