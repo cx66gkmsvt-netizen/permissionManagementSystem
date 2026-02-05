@@ -19,51 +19,51 @@ func (r *CCRepository) List(query *model.CCQuery) (*model.PageResult, error) {
 	var list []model.CCMember
 	var total int64
 
-	db := r.db.Model(&model.CCMember{}).Where("del_flag = '0'")
+	db := r.db.Model(&model.CCMember{}).Where("cc_member.del_flag = '0'")
 
 	// 精确匹配CCID
 	if query.CCID != nil {
-		db = db.Where("id = ?", *query.CCID)
+		db = db.Where("cc_member.id = ?", *query.CCID)
 	}
 	// 模糊匹配姓名
 	if query.Name != "" {
-		db = db.Where("name LIKE ?", "%"+query.Name+"%")
+		db = db.Where("cc_member.name LIKE ?", "%"+query.Name+"%")
 	}
 	// 模糊匹配昵称
 	if query.NickName != "" {
-		db = db.Where("nick_name LIKE ?", "%"+query.NickName+"%")
+		db = db.Where("cc_member.nick_name LIKE ?", "%"+query.NickName+"%")
 	}
 	// 精确匹配手机号
 	if query.Mobile != "" {
-		db = db.Where("mobile = ?", query.Mobile)
+		db = db.Where("cc_member.mobile = ?", query.Mobile)
 	}
 	// 角色类型
 	if query.RoleType != "" {
-		db = db.Where("role_type = ?", query.RoleType)
+		db = db.Where("cc_member.role_type = ?", query.RoleType)
 	}
 	// 状态
 	if query.Status != "" {
-		db = db.Where("status = ?", query.Status)
+		db = db.Where("cc_member.status = ?", query.Status)
 	}
 	// 是否屏蔽
 	if query.IsBlocked != "" {
-		db = db.Where("is_blocked = ?", query.IsBlocked)
+		db = db.Where("cc_member.is_blocked = ?", query.IsBlocked)
 	}
 	// 在班状态
 	if query.AttendanceStatus != "" {
-		db = db.Where("attendance_status = ?", query.AttendanceStatus)
+		db = db.Where("cc_member.attendance_status = ?", query.AttendanceStatus)
 	}
 	// 军团筛选
 	if query.LegionID != nil {
-		db = db.Where("legion_id = ?", *query.LegionID)
+		db = db.Where("cc_member.legion_id = ?", *query.LegionID)
 	}
 	// 团队筛选
 	if query.TeamID != nil {
-		db = db.Where("team_id = ?", *query.TeamID)
+		db = db.Where("cc_member.team_id = ?", *query.TeamID)
 	}
 	// 战队筛选
 	if query.SquadID != nil {
-		db = db.Where("squad_id = ?", *query.SquadID)
+		db = db.Where("cc_member.squad_id = ?", *query.SquadID)
 	}
 
 	db.Count(&total)
