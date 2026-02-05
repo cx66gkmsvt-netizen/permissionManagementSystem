@@ -17,9 +17,9 @@ type CCLegion struct {
 	BaseModel
 
 	// 关联字段 (View Only)
-	LeaderName         string  `json:"leaderName" gorm:"-"`
-	MonthlyPerformance float64 `json:"monthlyPerformance" gorm:"-"` // 当月业绩(元)
-	PerformanceRank    int     `json:"performanceRank" gorm:"-"`    // 业绩排名
+	LeaderName         string  `json:"leaderName" gorm:"->"`
+	MonthlyPerformance float64 `json:"monthlyPerformance" gorm:"->"` // 当月业绩(元)
+	PerformanceRank    int     `json:"performanceRank" gorm:"->"`    // 业绩排名
 }
 
 func (CCLegion) TableName() string {
@@ -41,11 +41,11 @@ type CCTeam struct {
 	BaseModel
 
 	// 关联字段 (View Only)
-	LeaderName         string  `json:"leaderName" gorm:"-"`
-	LegionName         string  `json:"legionName" gorm:"-"`
-	LegionLeaderName   string  `json:"legionLeaderName" gorm:"-"`
-	MonthlyPerformance float64 `json:"monthlyPerformance" gorm:"-"` // 当月业绩(元)
-	PerformanceRank    int     `json:"performanceRank" gorm:"-"`    // 业绩排名
+	LeaderName         string  `json:"leaderName" gorm:"->"`
+	LegionName         string  `json:"legionName" gorm:"->"`
+	LegionLeaderName   string  `json:"legionLeaderName" gorm:"->"`
+	MonthlyPerformance float64 `json:"monthlyPerformance" gorm:"->"` // 当月业绩(元)
+	PerformanceRank    int     `json:"performanceRank" gorm:"->"`    // 业绩排名
 }
 
 func (CCTeam) TableName() string {
@@ -66,14 +66,14 @@ type CCSquad struct {
 	BaseModel
 
 	// 关联字段 (View Only)
-	LeaderName         string  `json:"leaderName" gorm:"-"`
-	TeamName           string  `json:"teamName" gorm:"-"`
-	TeamLeaderName     string  `json:"teamLeaderName" gorm:"-"`
-	LegionID           *int64  `json:"legionId" gorm:"-"`
-	LegionName         string  `json:"legionName" gorm:"-"`
-	LegionLeaderName   string  `json:"legionLeaderName" gorm:"-"`
-	MonthlyPerformance float64 `json:"monthlyPerformance" gorm:"-"` // 当月业绩(元)
-	PerformanceRank    int     `json:"performanceRank" gorm:"-"`    // 业绩排名
+	LeaderName         string  `json:"leaderName" gorm:"->"`
+	TeamName           string  `json:"teamName" gorm:"->"`
+	TeamLeaderName     string  `json:"teamLeaderName" gorm:"->"`
+	LegionID           *int64  `json:"legionId" gorm:"->"`
+	LegionName         string  `json:"legionName" gorm:"->"`
+	LegionLeaderName   string  `json:"legionLeaderName" gorm:"->"`
+	MonthlyPerformance float64 `json:"monthlyPerformance" gorm:"->"` // 当月业绩(元)
+	PerformanceRank    int     `json:"performanceRank" gorm:"->"`    // 业绩排名
 }
 
 func (CCSquad) TableName() string {
@@ -170,6 +170,12 @@ type CCAttendance struct {
 	Status         string    `json:"status" gorm:"column:status;size:1;not null;comment:在班状态(1在班 2休班 3请假)"`
 	OperatorID     *int64    `json:"operatorId" gorm:"column:operator_id;comment:操作人ID"`
 	CreateTime     time.Time `json:"createTime" gorm:"column:create_time;autoCreateTime;comment:创建时间"`
+
+	// 关联字段 (View Only)
+	CCName     string `json:"ccName" gorm:"->"`
+	LegionName string `json:"legionName" gorm:"->"`
+	TeamName   string `json:"teamName" gorm:"->"`
+	SquadName  string `json:"squadName" gorm:"->"`
 }
 
 func (CCAttendance) TableName() string {
@@ -200,6 +206,12 @@ type CCLeadAllocation struct {
 	AllocationReason   string    `json:"allocationReason" gorm:"column:allocation_reason;type:text;comment:分配/未分配原因"`
 	CreateTime         time.Time `json:"createTime" gorm:"column:create_time;autoCreateTime;comment:创建时间"`
 	UpdateTime         time.Time `json:"updateTime" gorm:"column:update_time;autoUpdateTime;comment:更新时间"`
+
+	// 关联字段 (View Only)
+	CCName     string `json:"ccName" gorm:"->"`
+	LegionName string `json:"legionName" gorm:"->"`
+	TeamName   string `json:"teamName" gorm:"->"`
+	SquadName  string `json:"squadName" gorm:"->"`
 }
 
 func (CCLeadAllocation) TableName() string {

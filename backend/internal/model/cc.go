@@ -54,14 +54,14 @@ type CCMember struct {
 	BaseModel
 
 	// 关联字段 (View Only) - 前端显示用
-	SquadName        string  `json:"squadName" gorm:"-"`
-	SquadLeaderName  string  `json:"squadLeaderName" gorm:"-"`
-	TeamName         string  `json:"teamName" gorm:"-"`
-	TeamLeaderName   string  `json:"teamLeaderName" gorm:"-"`
-	LegionName       string  `json:"legionName" gorm:"-"`
-	LegionLeaderName string  `json:"legionLeaderName" gorm:"-"`
-	BalanceYuan      float64 `json:"balanceYuan" gorm:"-"`     // 余额(元)，前端显示用
-	PerformanceYuan  float64 `json:"performanceYuan" gorm:"-"` // 业绩(元)，前端显示用
+	SquadName        string  `json:"squadName" gorm:"->"`
+	SquadLeaderName  string  `json:"squadLeaderName" gorm:"->"`
+	TeamName         string  `json:"teamName" gorm:"->"`
+	TeamLeaderName   string  `json:"teamLeaderName" gorm:"->"`
+	LegionName       string  `json:"legionName" gorm:"->"`
+	LegionLeaderName string  `json:"legionLeaderName" gorm:"->"`
+	BalanceYuan      float64 `json:"balanceYuan" gorm:"->"`     // 余额(元)，前端显示用
+	PerformanceYuan  float64 `json:"performanceYuan" gorm:"->"` // 业绩(元)，前端显示用
 }
 
 func (CCMember) TableName() string {
