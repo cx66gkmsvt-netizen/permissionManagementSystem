@@ -117,8 +117,8 @@ func main() {
 		ccHandler := handler.NewCCHandler()
 		ccGroup := auth.Group("/system/cc")
 		{
-			ccGroup.GET("", ccHandler.List)
-			ccGroup.GET("/:id", ccHandler.Get)
+			ccGroup.GET("", middleware.OperLog("CC管理", 0), ccHandler.List)
+			ccGroup.GET("/:id", middleware.OperLog("CC管理", 0), ccHandler.Get)
 			ccGroup.POST("", middleware.OperLog("CC管理", 1), ccHandler.Create)
 			ccGroup.PUT("/:id", middleware.OperLog("CC管理", 2), ccHandler.Update)
 			ccGroup.DELETE("/:id", middleware.OperLog("CC管理", 3), ccHandler.Delete)
@@ -128,75 +128,75 @@ func main() {
 		legionHandler := handler.NewLegionHandler()
 		legionGroup := auth.Group("/cc/legion")
 		{
-			legionGroup.GET("", legionHandler.List)
-			legionGroup.GET("/all", legionHandler.ListAll)
-			legionGroup.GET("/:id", legionHandler.Get)
+			legionGroup.GET("", middleware.OperLog("军团管理", 0), legionHandler.List)
+			legionGroup.GET("/all", middleware.OperLog("军团管理", 0), legionHandler.ListAll)
+			legionGroup.GET("/:id", middleware.OperLog("军团管理", 0), legionHandler.Get)
 			legionGroup.POST("", middleware.OperLog("军团管理", 1), legionHandler.Create)
 			legionGroup.PUT("/:id", middleware.OperLog("军团管理", 2), legionHandler.Update)
-			legionGroup.GET("/:id/logs", legionHandler.GetLogs)
-			legionGroup.GET("/:id/fund", legionHandler.GetFund)
+			legionGroup.GET("/:id/logs", middleware.OperLog("军团管理", 0), legionHandler.GetLogs)
+			legionGroup.GET("/:id/fund", middleware.OperLog("军团资金", 0), legionHandler.GetFund)
 			legionGroup.PUT("/:id/fund", middleware.OperLog("军团资金", 2), legionHandler.EditFund)
 			legionGroup.POST("/:id/recharge", middleware.OperLog("军团充值", 1), legionHandler.Recharge)
 			legionGroup.POST("/:id/transfer", middleware.OperLog("军团转账", 1), legionHandler.Transfer)
-			legionGroup.GET("/:id/bills", legionHandler.GetBills)
+			legionGroup.GET("/:id/bills", middleware.OperLog("军团账单", 0), legionHandler.GetBills)
 		}
 
 		// CC团队管理
 		ccTeamHandler := handler.NewCCTeamHandler()
 		ccTeamGroup := auth.Group("/cc/team")
 		{
-			ccTeamGroup.GET("", ccTeamHandler.List)
-			ccTeamGroup.GET("/all", ccTeamHandler.ListAll)
-			ccTeamGroup.GET("/:id", ccTeamHandler.Get)
+			ccTeamGroup.GET("", middleware.OperLog("团队管理", 0), ccTeamHandler.List)
+			ccTeamGroup.GET("/all", middleware.OperLog("团队管理", 0), ccTeamHandler.ListAll)
+			ccTeamGroup.GET("/:id", middleware.OperLog("团队管理", 0), ccTeamHandler.Get)
 			ccTeamGroup.POST("", middleware.OperLog("团队管理", 1), ccTeamHandler.Create)
 			ccTeamGroup.PUT("/:id", middleware.OperLog("团队管理", 2), ccTeamHandler.Update)
-			ccTeamGroup.GET("/:id/logs", ccTeamHandler.GetLogs)
-			ccTeamGroup.GET("/:id/fund", ccTeamHandler.GetFund)
+			ccTeamGroup.GET("/:id/logs", middleware.OperLog("团队管理", 0), ccTeamHandler.GetLogs)
+			ccTeamGroup.GET("/:id/fund", middleware.OperLog("团队资金", 0), ccTeamHandler.GetFund)
 			ccTeamGroup.PUT("/:id/fund", middleware.OperLog("团队资金", 2), ccTeamHandler.EditFund)
 			ccTeamGroup.POST("/:id/recharge", middleware.OperLog("团队充值", 1), ccTeamHandler.Recharge)
 			ccTeamGroup.POST("/:id/transfer", middleware.OperLog("团队转账", 1), ccTeamHandler.Transfer)
-			ccTeamGroup.GET("/:id/bills", ccTeamHandler.GetBills)
+			ccTeamGroup.GET("/:id/bills", middleware.OperLog("团队账单", 0), ccTeamHandler.GetBills)
 		}
 
 		// CC战队管理
 		ccSquadHandler := handler.NewCCSquadHandler()
 		ccSquadGroup := auth.Group("/cc/squad")
 		{
-			ccSquadGroup.GET("", ccSquadHandler.List)
-			ccSquadGroup.GET("/all", ccSquadHandler.ListAll)
-			ccSquadGroup.GET("/byTeam", ccSquadHandler.ListByTeam)
-			ccSquadGroup.GET("/:id", ccSquadHandler.Get)
+			ccSquadGroup.GET("", middleware.OperLog("战队管理", 0), ccSquadHandler.List)
+			ccSquadGroup.GET("/all", middleware.OperLog("战队管理", 0), ccSquadHandler.ListAll)
+			ccSquadGroup.GET("/byTeam", middleware.OperLog("战队管理", 0), ccSquadHandler.ListByTeam)
+			ccSquadGroup.GET("/:id", middleware.OperLog("战队管理", 0), ccSquadHandler.Get)
 			ccSquadGroup.POST("", middleware.OperLog("战队管理", 1), ccSquadHandler.Create)
 			ccSquadGroup.PUT("/:id", middleware.OperLog("战队管理", 2), ccSquadHandler.Update)
-			ccSquadGroup.GET("/:id/logs", ccSquadHandler.GetLogs)
-			ccSquadGroup.GET("/:id/fund", ccSquadHandler.GetFund)
+			ccSquadGroup.GET("/:id/logs", middleware.OperLog("战队管理", 0), ccSquadHandler.GetLogs)
+			ccSquadGroup.GET("/:id/fund", middleware.OperLog("战队资金", 0), ccSquadHandler.GetFund)
 			ccSquadGroup.PUT("/:id/fund", middleware.OperLog("战队资金", 2), ccSquadHandler.EditFund)
 			ccSquadGroup.POST("/:id/recharge", middleware.OperLog("战队充值", 1), ccSquadHandler.Recharge)
 			ccSquadGroup.POST("/:id/transfer", middleware.OperLog("战队转账", 1), ccSquadHandler.Transfer)
-			ccSquadGroup.GET("/:id/bills", ccSquadHandler.GetBills)
+			ccSquadGroup.GET("/:id/bills", middleware.OperLog("战队账单", 0), ccSquadHandler.GetBills)
 		}
 
 		// 在班管理
 		attendanceHandler := handler.NewAttendanceHandler()
 		attendanceGroup := auth.Group("/cc/attendance")
 		{
-			attendanceGroup.GET("", attendanceHandler.List)
+			attendanceGroup.GET("", middleware.OperLog("在班管理", 0), attendanceHandler.List)
 			attendanceGroup.PUT("/:ccId/:date", middleware.OperLog("在班管理", 2), attendanceHandler.Update)
 			attendanceGroup.POST("/batch", middleware.OperLog("在班管理", 2), attendanceHandler.BatchUpdate)
-			attendanceGroup.GET("/stats", attendanceHandler.Stats)
-			attendanceGroup.GET("/export", attendanceHandler.Export)
-			attendanceGroup.GET("/:ccId/history", attendanceHandler.History)
+			attendanceGroup.GET("/stats", middleware.OperLog("在班管理", 0), attendanceHandler.Stats)
+			attendanceGroup.GET("/export", middleware.OperLog("在班管理", 0), attendanceHandler.Export)
+			attendanceGroup.GET("/:ccId/history", middleware.OperLog("在班管理", 0), attendanceHandler.History)
 		}
 
 		// 例子分配管理
 		leadAllocationHandler := handler.NewLeadAllocationHandler()
 		leadAllocationGroup := auth.Group("/cc/lead-allocation")
 		{
-			leadAllocationGroup.GET("", leadAllocationHandler.List)
+			leadAllocationGroup.GET("", middleware.OperLog("例子分配", 0), leadAllocationHandler.List)
 			leadAllocationGroup.PUT("/:ccId", middleware.OperLog("例子分配", 2), leadAllocationHandler.Update)
 			leadAllocationGroup.POST("/batch", middleware.OperLog("例子分配", 2), leadAllocationHandler.BatchUpdateIsAllocated)
-			leadAllocationGroup.GET("/stats", leadAllocationHandler.Stats)
-			leadAllocationGroup.GET("/:ccId/detail", leadAllocationHandler.Detail)
+			leadAllocationGroup.GET("/stats", middleware.OperLog("例子分配", 0), leadAllocationHandler.Stats)
+			leadAllocationGroup.GET("/:ccId/detail", middleware.OperLog("例子分配", 0), leadAllocationHandler.Detail)
 		}
 	}
 

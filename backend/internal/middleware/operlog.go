@@ -12,6 +12,17 @@ import (
 	"user-center/internal/repository"
 )
 
+// responseBodyWriter 响应体捕获 Writer
+type responseBodyWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w responseBodyWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
 // OperLog 操作日志中间件
 func OperLog(title string, businessType int) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -30,11 +41,17 @@ func OperLog(title string, businessType int) gin.HandlerFunc {
 			body, _ := io.ReadAll(c.Request.Body)
 			operParam = string(body)
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+		} else {
+			operParam = c.Request.URL.RawQuery
 		}
 
 		// 2. 获取用户信息 (JWTAuth 已执行)
 		userID := GetUserID(c)
 		userName := GetUserName(c)
+
+		// 封装 ResponseWriter 以捕获响应体
+		w := &responseBodyWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+		c.Writer = w
 
 		// 3. 执行请求
 		c.Next()
@@ -49,11 +66,14 @@ func OperLog(title string, businessType int) gin.HandlerFunc {
 			errorMsg = c.Errors.String()
 		}
 
+		// 获取响应结果
+		jsonResult := w.body.String()
+
 		// 获取追踪内容 (必须在并发前获取)
 		traceContent := trace.GetTraceString(c.Request.Context())
 
-		// 5. 异步记录日志 (传递捕获的变量)
-		go func(uid int64, uname, m, reqM, url, ip, param, s, errMsg, trc string, t time.Time) {
+		// 5. 异步记录日志
+		go func(uid int64, uname, m, reqM, url, ip, param, res, s, errMsg, trc string, t time.Time) {
 			log := &model.SysOperLog{
 				Title:         title,
 				BusinessType:  businessType,
@@ -64,12 +84,13 @@ func OperLog(title string, businessType int) gin.HandlerFunc {
 				OperURL:       url,
 				OperIP:        ip,
 				OperParam:     param,
+				JSONResult:    res,
 				Status:        s,
 				ErrorMsg:      errMsg,
 				TraceContent:  trc,
 				OperTime:      t,
 			}
 			repository.NewOperLogRepository().Create(log)
-		}(userID, userName, method, reqMethod, operUrl, operIp, operParam, status, errorMsg, traceContent, start)
+		}(userID, userName, method, reqMethod, operUrl, operIp, operParam, jsonResult, status, errorMsg, traceContent, start)
 	}
 }
