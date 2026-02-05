@@ -7,7 +7,19 @@ export function getAttendanceList(params) {
     return request({
         url: '/cc/attendance',
         method: 'get',
-        params
+        params,
+        paramsSerializer: params => {
+            const searchParams = new URLSearchParams()
+            for (const key in params) {
+                const val = params[key]
+                if (Array.isArray(val)) {
+                    val.forEach(v => searchParams.append(key, v))
+                } else if (val !== null && val !== undefined) {
+                    searchParams.append(key, val)
+                }
+            }
+            return searchParams.toString()
+        }
     })
 }
 
@@ -53,6 +65,18 @@ export function exportAttendance(params) {
         url: '/cc/attendance/export',
         method: 'get',
         params,
-        responseType: 'blob'
+        responseType: 'blob',
+        paramsSerializer: params => {
+            const searchParams = new URLSearchParams()
+            for (const key in params) {
+                const val = params[key]
+                if (Array.isArray(val)) {
+                    val.forEach(v => searchParams.append(key, v))
+                } else if (val !== null && val !== undefined) {
+                    searchParams.append(key, val)
+                }
+            }
+            return searchParams.toString()
+        }
     })
 }
