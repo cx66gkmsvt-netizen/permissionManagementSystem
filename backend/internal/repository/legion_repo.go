@@ -27,9 +27,11 @@ func (r *LegionRepository) List(query *model.LegionQuery) (*model.PageResult, er
 
 	db.Count(&total)
 
-	err := db.Offset(query.GetOffset()).
+	err := db.Select("cc_legion.*, m.name as leader_name").
+		Joins("LEFT JOIN cc_member m ON cc_legion.leader_id = m.id").
+		Offset(query.GetOffset()).
 		Limit(query.PageSize).
-		Order("id ASC").
+		Order("cc_legion.id ASC").
 		Find(&list).Error
 
 	return &model.PageResult{Total: total, Rows: list}, err

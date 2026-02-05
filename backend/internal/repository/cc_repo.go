@@ -68,9 +68,13 @@ func (r *CCRepository) List(query *model.CCQuery) (*model.PageResult, error) {
 
 	db.Count(&total)
 
-	err := db.Offset(query.GetOffset()).
+	err := db.Select("cc_member.*, l.legion_name, t.team_name, s.squad_name").
+		Joins("LEFT JOIN cc_legion l ON cc_member.legion_id = l.id").
+		Joins("LEFT JOIN cc_team t ON cc_member.team_id = t.id").
+		Joins("LEFT JOIN cc_squad s ON cc_member.squad_id = s.id").
+		Offset(query.GetOffset()).
 		Limit(query.PageSize).
-		Order("performance_rank ASC, create_time DESC").
+		Order("cc_member.performance_rank ASC, cc_member.create_time DESC").
 		Find(&list).Error
 
 	// 转换金额为元

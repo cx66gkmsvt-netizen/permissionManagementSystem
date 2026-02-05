@@ -9,29 +9,59 @@
         <el-form-item label="手机号">
           <el-input v-model="queryParams.mobile" placeholder="请输入手机号" clearable style="width: 150px" />
         </el-form-item>
+        
+        <!-- 组织架构筛选 -->
         <el-form-item label="军团">
-          <el-tree-select
-            v-model="queryParams.teamId"
-            :data="teamOptions"
-            :props="{ label: 'deptName', value: 'deptId', children: 'children' }"
+          <el-select
+            v-model="queryParams.legionId"
             placeholder="请选择军团"
-            check-strictly
             clearable
+            filterable
+            style="width: 150px"
+            @change="handleQueryLegionChange"
+          >
+            <el-option
+              v-for="item in legionOptions"
+              :key="item.id"
+              :label="item.legionName"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="团队">
+          <el-select
+            v-model="queryParams.teamId"
+            placeholder="请选择团队"
+            clearable
+            filterable
             style="width: 150px"
             @change="handleQueryTeamChange"
-          />
+          >
+            <el-option
+              v-for="item in queryTeamOptions"
+              :key="item.id"
+              :label="item.teamName"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="战队">
-          <el-tree-select
+          <el-select
             v-model="queryParams.squadId"
-            :data="querySquadOptions"
-            :props="{ label: 'deptName', value: 'deptId', children: 'children' }"
             placeholder="请选择战队"
-            check-strictly
             clearable
+            filterable
             style="width: 150px"
-          />
+          >
+            <el-option
+              v-for="item in querySquadOptions"
+              :key="item.id"
+              :label="item.squadName"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
+
         <el-form-item label="状态">
           <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 120px">
             <el-option label="正常" value="0" />
@@ -55,21 +85,14 @@
       <el-table-column prop="nickName" label="昵称" width="100" />
       <el-table-column prop="mobile" label="手机号" width="120" />
       <el-table-column prop="wechat" label="微信号" width="120" />
-      <el-table-column prop="cno" label="座席号" width="100" />
-      <el-table-column prop="cloudAccount" label="云客账号" width="120" />
-      <el-table-column label="所属军团" width="120">
+      <el-table-column prop="cno1" label="座席号" width="100" />
+      <el-table-column prop="cloudAccount1" label="云客账号" width="120" />
+      <el-table-column prop="legionName" label="所属军团" width="120" show-overflow-tooltip />
+      <el-table-column prop="teamName" label="所属团队" width="120" show-overflow-tooltip />
+      <el-table-column prop="squadName" label="所属战队" width="120" show-overflow-tooltip />
+      <el-table-column prop="balanceYuan" label="个人资金" width="120" align="right">
         <template #default="{ row }">
-          {{ getDeptName(row.teamId) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="所属战队" width="120">
-        <template #default="{ row }">
-          {{ getDeptName(row.squadId) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="balance" label="个人资金" width="120">
-        <template #default="{ row }">
-          ¥ {{ row.balance }}
+          ¥ {{ row.balanceYuan?.toFixed(2) }}
         </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" width="80" align="center">
@@ -137,40 +160,70 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="座席号" prop="cno">
-              <el-input v-model="form.cno" placeholder="请输入座席号" />
+            <el-form-item label="座席号" prop="cno1">
+              <el-input v-model="form.cno1" placeholder="请输入座席号" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="云客账号" prop="cloudAccount">
-              <el-input v-model="form.cloudAccount" placeholder="请输入云客账号" />
+            <el-form-item label="云客账号" prop="cloudAccount1">
+              <el-input v-model="form.cloudAccount1" placeholder="请输入云客账号" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="所属军团" prop="teamId">
-              <el-tree-select
-                v-model="form.teamId"
-                :data="teamOptions"
-                :props="{ label: 'deptName', value: 'deptId', children: 'children' }"
+            <el-form-item label="所属军团" prop="legionId">
+              <el-select
+                v-model="form.legionId"
                 placeholder="请选择军团"
-                check-strictly
+                filterable
                 style="width: 100%"
-                @change="handleFormTeamChange"
-              />
+                @change="handleFormLegionChange"
+              >
+                <el-option
+                  v-for="item in legionOptions"
+                  :key="item.id"
+                  :label="item.legionName"
+                  :value="item.id"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="所属战队" prop="squadId">
-              <el-tree-select
-                v-model="form.squadId"
-                :data="formSquadOptions"
-                :props="{ label: 'deptName', value: 'deptId', children: 'children' }"
-                placeholder="请选择战队"
-                check-strictly
+            <el-form-item label="所属团队" prop="teamId">
+              <el-select
+                v-model="form.teamId"
+                placeholder="请选择团队"
+                filterable
                 style="width: 100%"
-              />
+                @change="handleFormTeamChange"
+              >
+                <el-option
+                  v-for="item in formTeamOptions"
+                  :key="item.id"
+                  :label="item.teamName"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="所属战队" prop="squadId">
+              <el-select
+                v-model="form.squadId"
+                placeholder="请选择战队"
+                filterable
+                style="width: 100%"
+              >
+                <el-option
+                  v-for="item in formSquadOptions"
+                  :key="item.id"
+                  :label="item.squadName"
+                  :value="item.id"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -196,7 +249,9 @@ defineOptions({
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listCC, getCC, createCC, updateCC, deleteCC } from '@/api/cc'
-import { listDept } from '@/api/dept'
+import { listAllLegion } from '@/api/legion'
+import { listAllCCTeam } from '@/api/ccTeam'
+import { listAllCCSquad } from '@/api/ccSquad'
 
 const loading = ref(false)
 const ccList = ref([])
@@ -205,10 +260,15 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const submitLoading = ref(false)
 
-// 部门数据
-const deptList = ref([])
-const teamOptions = ref([])
+// 组织架构数据
+const legionOptions = ref([])
+const allTeams = ref([])
+const allSquads = ref([])
+
+const queryTeamOptions = ref([])
 const querySquadOptions = ref([])
+
+const formTeamOptions = ref([])
 const formSquadOptions = ref([])
 
 const formRef = ref()
@@ -218,6 +278,7 @@ const queryParams = reactive({
   pageSize: 10,
   name: '',
   mobile: '',
+  legionId: null,
   teamId: null,
   squadId: null,
   status: ''
@@ -229,8 +290,9 @@ const form = reactive({
   nickName: '',
   mobile: '',
   wechat: '',
-  cno: '',
-  cloudAccount: '',
+  cno1: '',
+  cloudAccount1: '',
+  legionId: null,
   teamId: null,
   squadId: null,
   status: '0'
@@ -242,13 +304,25 @@ const rules = {
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
-  teamId: [{ required: true, message: '请选择所属军团', trigger: 'change' }]
+  legionId: [{ required: true, message: '请选择所属军团', trigger: 'change' }],
+  teamId: [{ required: true, message: '请选择所属团队', trigger: 'change' }]
 }
 
 onMounted(() => {
-  getDepts()
+  initOrgData()
   getList()
 })
+
+const initOrgData = async () => {
+  const [legionRes, teamRes, squadRes] = await Promise.all([
+    listAllLegion(),
+    listAllCCTeam(),
+    listAllCCSquad()
+  ])
+  legionOptions.value = legionRes.data || []
+  allTeams.value = teamRes.data || []
+  allSquads.value = squadRes.data || []
+}
 
 const getList = async () => {
   loading.value = true
@@ -261,61 +335,42 @@ const getList = async () => {
   }
 }
 
-const getDepts = async () => {
-  const res = await listDept()
-  deptList.value = res.data || []
-  teamOptions.value = deptList.value // 假设顶层是军团
-}
-
-// 查找部门名称
-const getDeptName = (deptId) => {
-  if (!deptId) return '-'
-  const findDept = (depts) => {
-    for (const d of depts) {
-      if (d.deptId === deptId) return d.deptName
-      if (d.children) {
-        const name = findDept(d.children)
-        if (name) return name
-      }
-    }
-    return null
+// 搜索栏级联
+const handleQueryLegionChange = (val) => {
+  queryParams.teamId = null
+  queryParams.squadId = null
+  queryTeamOptions.value = []
+  querySquadOptions.value = []
+  if (val) {
+    queryTeamOptions.value = allTeams.value.filter(item => item.legionId === val)
   }
-  return findDept(deptList.value) || deptId
 }
 
-// 搜索栏军团变化
 const handleQueryTeamChange = (val) => {
   queryParams.squadId = null
   querySquadOptions.value = []
   if (val) {
-    const team = findDeptInTree(teamOptions.value, val)
-    if (team && team.children) {
-      querySquadOptions.value = team.children
-    }
+    querySquadOptions.value = allSquads.value.filter(item => item.teamId === val)
   }
 }
 
-// 表单军团变化
+// 表单级联
+const handleFormLegionChange = (val) => {
+  form.teamId = null
+  form.squadId = null
+  formTeamOptions.value = []
+  formSquadOptions.value = []
+  if (val) {
+    formTeamOptions.value = allTeams.value.filter(item => item.legionId === val)
+  }
+}
+
 const handleFormTeamChange = (val) => {
   form.squadId = null
   formSquadOptions.value = []
   if (val) {
-    const team = findDeptInTree(teamOptions.value, val)
-    if (team && team.children) {
-      formSquadOptions.value = team.children
-    }
+    formSquadOptions.value = allSquads.value.filter(item => item.teamId === val)
   }
-}
-
-const findDeptInTree = (tree, id) => {
-  for (const node of tree) {
-    if (node.deptId === id) return node
-    if (node.children) {
-      const res = findDeptInTree(node.children, id)
-      if (res) return res
-    }
-  }
-  return null
 }
 
 const handleQuery = () => {
@@ -326,9 +381,11 @@ const handleQuery = () => {
 const resetQuery = () => {
   queryParams.name = ''
   queryParams.mobile = ''
+  queryParams.legionId = null
   queryParams.teamId = null
   queryParams.squadId = null
   queryParams.status = ''
+  queryTeamOptions.value = []
   querySquadOptions.value = []
   handleQuery()
 }
@@ -339,11 +396,13 @@ const resetForm = () => {
   form.nickName = ''
   form.mobile = ''
   form.wechat = ''
-  form.cno = ''
-  form.cloudAccount = ''
+  form.cno1 = ''
+  form.cloudAccount1 = ''
+  form.legionId = null
   form.teamId = null
   form.squadId = null
   form.status = '0'
+  formTeamOptions.value = []
   formSquadOptions.value = []
 }
 
@@ -363,19 +422,22 @@ const handleEdit = async (row) => {
     nickName: data.nickName,
     mobile: data.mobile,
     wechat: data.wechat,
-    cno: data.cno,
-    cloudAccount: data.cloudAccount,
+    cno1: data.cno1,
+    cloudAccount1: data.cloudAccount1,
+    legionId: data.legionId,
     teamId: data.teamId,
     squadId: data.squadId,
     status: data.status
   })
-  // 初始化战队选项
-  if (data.teamId) {
-    const team = findDeptInTree(teamOptions.value, data.teamId)
-    if (team && team.children) {
-      formSquadOptions.value = team.children
-    }
+  
+  // 初始化级联选项
+  if (data.legionId) {
+    formTeamOptions.value = allTeams.value.filter(item => item.legionId === data.legionId)
   }
+  if (data.teamId) {
+    formSquadOptions.value = allSquads.value.filter(item => item.teamId === data.teamId)
+  }
+  
   dialogTitle.value = '编辑CC'
   dialogVisible.value = true
 }

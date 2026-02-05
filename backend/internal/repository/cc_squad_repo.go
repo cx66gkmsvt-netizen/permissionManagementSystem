@@ -30,9 +30,15 @@ func (r *CCSquadRepository) List(query *model.SquadQuery) (*model.PageResult, er
 
 	db.Count(&total)
 
-	err := db.Offset(query.GetOffset()).
+	err := db.Select("cc_squad.*, m.name as leader_name, t.team_name, tm.name as team_leader_name, l.legion_name, lm.name as legion_leader_name").
+		Joins("LEFT JOIN cc_member m ON cc_squad.leader_id = m.id").
+		Joins("LEFT JOIN cc_team t ON cc_squad.team_id = t.id").
+		Joins("LEFT JOIN cc_member tm ON t.leader_id = tm.id").
+		Joins("LEFT JOIN cc_legion l ON t.legion_id = l.id").
+		Joins("LEFT JOIN cc_member lm ON l.leader_id = lm.id").
+		Offset(query.GetOffset()).
 		Limit(query.PageSize).
-		Order("id ASC").
+		Order("cc_squad.id ASC").
 		Find(&list).Error
 
 	return &model.PageResult{Total: total, Rows: list}, err
