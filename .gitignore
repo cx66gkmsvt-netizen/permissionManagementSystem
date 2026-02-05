@@ -32,7 +32,6 @@ npm-debug.log*
 # Go
 *.test
 *.out
-go.sum
 
 # Temporary files
 tmp/
