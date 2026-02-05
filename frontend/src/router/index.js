@@ -55,6 +55,36 @@ const routes = [
                 name: 'CC',
                 component: () => import('@/views/cc/index.vue'),
                 meta: { title: 'CC管理', permission: 'system:cc:list' }
+            },
+            {
+                path: 'cc/legion',
+                name: 'Legion',
+                component: () => import('@/views/cc/legion/index.vue'),
+                meta: { title: '军团管理', permission: 'cc:legion:list' }
+            },
+            {
+                path: 'cc/team',
+                name: 'CCTeam',
+                component: () => import('@/views/cc/team/index.vue'),
+                meta: { title: 'CC团队管理', permission: 'cc:team:list' }
+            },
+            {
+                path: 'cc/squad',
+                name: 'CCSquad',
+                component: () => import('@/views/cc/squad/index.vue'),
+                meta: { title: 'CC战队管理', permission: 'cc:squad:list' }
+            },
+            {
+                path: 'cc/attendance',
+                name: 'Attendance',
+                component: () => import('@/views/cc/attendance/index.vue'),
+                meta: { title: '在班管理', permission: 'cc:attendance:list' }
+            },
+            {
+                path: 'cc/lead-allocation',
+                name: 'LeadAllocation',
+                component: () => import('@/views/cc/leadAllocation/index.vue'),
+                meta: { title: '例子分配', permission: 'cc:lead-allocation:list' }
             }
         ]
     },
