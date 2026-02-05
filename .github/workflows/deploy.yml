@@ -60,7 +60,7 @@ jobs:
             chmod +x server
             # Ensure permissions for nginx
             chmod -R 755 html
-            # Restart containers
+            # Restart containers with rebuild to pick up new binary
             docker-compose down
-            docker-compose up -d
+            docker-compose up -d --build
             echo "Deployment Success!"
