@@ -19,13 +19,13 @@ func (r *CCSquadRepository) List(query *model.SquadQuery) (*model.PageResult, er
 	var list []model.CCSquad
 	var total int64
 
-	db := r.db.Model(&model.CCSquad{}).Where("del_flag = '0'")
+	db := r.db.Model(&model.CCSquad{}).Where("cc_squad.del_flag = '0'")
 
 	if query.SquadName != "" {
-		db = db.Where("squad_name LIKE ?", "%"+query.SquadName+"%")
+		db = db.Where("cc_squad.squad_name LIKE ?", "%"+query.SquadName+"%")
 	}
 	if query.TeamID != nil {
-		db = db.Where("team_id = ?", *query.TeamID)
+		db = db.Where("cc_squad.team_id = ?", *query.TeamID)
 	}
 
 	db.Count(&total)

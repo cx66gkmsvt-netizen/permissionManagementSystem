@@ -19,10 +19,10 @@ func (r *LegionRepository) List(query *model.LegionQuery) (*model.PageResult, er
 	var list []model.CCLegion
 	var total int64
 
-	db := r.db.Model(&model.CCLegion{}).Where("del_flag = '0'")
+	db := r.db.Model(&model.CCLegion{}).Where("cc_legion.del_flag = '0'")
 
 	if query.LegionName != "" {
-		db = db.Where("legion_name LIKE ?", "%"+query.LegionName+"%")
+		db = db.Where("cc_legion.legion_name LIKE ?", "%"+query.LegionName+"%")
 	}
 
 	db.Count(&total)

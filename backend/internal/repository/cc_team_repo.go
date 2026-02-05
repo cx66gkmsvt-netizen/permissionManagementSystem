@@ -19,16 +19,16 @@ func (r *CCTeamRepository) List(query *model.TeamQuery) (*model.PageResult, erro
 	var list []model.CCTeam
 	var total int64
 
-	db := r.db.Model(&model.CCTeam{}).Where("del_flag = '0'")
+	db := r.db.Model(&model.CCTeam{}).Where("cc_team.del_flag = '0'")
 
 	if query.TeamName != "" {
-		db = db.Where("team_name LIKE ?", "%"+query.TeamName+"%")
+		db = db.Where("cc_team.team_name LIKE ?", "%"+query.TeamName+"%")
 	}
 	if query.BusinessType != "" {
-		db = db.Where("business_type = ?", query.BusinessType)
+		db = db.Where("cc_team.business_type = ?", query.BusinessType)
 	}
 	if query.LegionID != nil {
-		db = db.Where("legion_id = ?", *query.LegionID)
+		db = db.Where("cc_team.legion_id = ?", *query.LegionID)
 	}
 
 	db.Count(&total)
