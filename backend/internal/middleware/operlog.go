@@ -74,6 +74,12 @@ func OperLog(title string, businessType int) gin.HandlerFunc {
 
 		// 5. 异步记录日志
 		go func(uid int64, uname, m, reqM, url, ip, param, res, s, errMsg, trc string, t time.Time) {
+			defer func() {
+				if err := recover(); err != nil {
+					// 仅记录错误，避免导致整个程序崩溃
+					// fmt.Printf("OperLog panic: %v\n", err)
+				}
+			}()
 			log := &model.SysOperLog{
 				Title:         title,
 				BusinessType:  businessType,

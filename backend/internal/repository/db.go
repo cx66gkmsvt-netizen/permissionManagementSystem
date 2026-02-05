@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm/logger"
 
 	"user-center/internal/config"
+	"user-center/internal/model"
 )
 
 var DB *gorm.DB
@@ -25,7 +26,11 @@ func InitDB(cfg *config.DatabaseConfig) error {
 		return err
 	}
 
-	// 表已由initdb脚本创建，跳过AutoMigrate
+	// 自动迁移关键表，确保字段存在 (修复可能因缺失字段导致的崩溃)
+	if err := DB.AutoMigrate(&model.SysOperLog{}); err != nil {
+		return fmt.Errorf("failed to migrate system tables: %v", err)
+	}
+
 	return nil
 }
 
