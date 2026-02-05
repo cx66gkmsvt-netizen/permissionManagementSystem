@@ -20,7 +20,7 @@ jobs:
         run: |
           cd backend
           go mod download
-          GOOS=linux GOARCH=amd64 go build -o ../deploy/server cmd/server/main.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../deploy/server cmd/server/main.go
 
       # 2. Build Frontend (Vue)
       - name: Setup Node
