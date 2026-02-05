@@ -8,7 +8,7 @@ COPY server /app/server
 # COPY config.yaml /app/config.yaml
 
 # 设置时区
-RUN apt-get update && apt-get install -y ca-certificates tzdata && \
+RUN apt-get update && apt-get install -y ca-certificates tzdata wget curl && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
     rm -rf /var/lib/apt/lists/*
