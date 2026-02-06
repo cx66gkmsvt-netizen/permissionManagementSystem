@@ -354,7 +354,8 @@ const handleEdit = async (row) => {
   const data = res.data
   Object.assign(form, { id: data.id, teamName: data.teamName, businessType: data.businessType, leaderId: data.leaderId, legionId: data.legionId })
   originalLegionId.value = data.legionId
-  leaderOptions.value = ccOptions.value.filter(cc => cc.teamId === row.id || !cc.leaderId)
+  // 加载可选团长：必须是团长角色
+  leaderOptions.value = ccOptions.value.filter(cc => cc.roleType === 'team_leader')
   dialogTitle.value = `编辑团队（${data.id}）`
   dialogVisible.value = true
 }

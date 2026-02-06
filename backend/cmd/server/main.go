@@ -27,6 +27,7 @@ func main() {
 
 	// 初始化数据
 	initData()
+	initCCData()
 
 	// 设置Gin模式
 	gin.SetMode(cfg.Server.Mode)

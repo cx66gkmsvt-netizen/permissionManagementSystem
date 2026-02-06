@@ -274,7 +274,8 @@ const handleEdit = async (row) => {
   const res = await getCCSquad(row.id)
   const data = res.data
   Object.assign(form, { id: data.id, squadName: data.squadName, teamId: data.teamId, leaderId: data.leaderId })
-  leaderOptions.value = ccOptions.value.filter(cc => cc.squadId === row.id || !cc.leaderId)
+  // 加载可选战队长：必须是战队长角色
+  leaderOptions.value = ccOptions.value.filter(cc => cc.roleType === 'squad_leader')
   dialogTitle.value = '编辑战队'
   dialogVisible.value = true
 }

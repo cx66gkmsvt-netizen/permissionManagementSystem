@@ -369,13 +369,9 @@ const handleEdit = async (row) => {
   form.id = data.id
   form.legionName = data.legionName
   form.leaderId = data.leaderId
-  // 加载可选军团长
+  // 加载可选军团长：必须是军团长角色
   leaderOptions.value = ccOptions.value.filter(cc => 
-    cc.legionId === row.id && cc.roleType === 'legion_leader'
-  )
-  // 添加空选项用于军团内成员
-  leaderOptions.value = ccOptions.value.filter(cc => 
-    !cc.leaderId || cc.id === data.leaderId || cc.legionId === row.id
+    cc.roleType === 'legion_leader'
   )
   dialogTitle.value = '编辑军团'
   dialogVisible.value = true

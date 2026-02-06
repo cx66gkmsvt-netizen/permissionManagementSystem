@@ -26,8 +26,19 @@ func InitDB(cfg *config.DatabaseConfig) error {
 		return err
 	}
 
-	// 自动迁移关键表，确保字段存在 (修复可能因缺失字段导致的崩溃)
-	if err := DB.AutoMigrate(&model.SysOperLog{}); err != nil {
+	// 自动迁移关键表，确保字段存在
+	if err := DB.AutoMigrate(
+		&model.SysOperLog{},
+		&model.CCMember{},
+		&model.CCLegion{},
+		&model.CCTeam{},
+		&model.CCSquad{},
+		&model.CCManageLog{},
+		&model.CCFundLog{},
+		&model.CCFundConfig{},
+		&model.CCAttendance{},
+		&model.CCLeadAllocation{},
+	); err != nil {
 		return fmt.Errorf("failed to migrate system tables: %v", err)
 	}
 

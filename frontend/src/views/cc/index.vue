@@ -3,6 +3,9 @@
     <!-- 搜索表单 -->
     <el-form :inline="true" :model="queryParams" class="table-actions">
       <div>
+        <el-form-item label="CCID">
+          <el-input v-model="queryParams.ccId" placeholder="请输入CCID" clearable style="width: 120px" />
+        </el-form-item>
         <el-form-item label="姓名">
           <el-input v-model="queryParams.name" placeholder="请输入姓名" clearable style="width: 150px" />
         </el-form-item>
@@ -93,6 +96,11 @@
       <el-table-column prop="balanceYuan" label="个人资金" width="120" align="right">
         <template #default="{ row }">
           ¥ {{ row.balanceYuan?.toFixed(2) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="performanceYuan" label="当月业绩" width="120" align="right">
+        <template #default="{ row }">
+          ¥ {{ row.performanceYuan?.toFixed(2) }}
         </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" width="80" align="center">
@@ -276,6 +284,7 @@ const formRef = ref()
 const queryParams = reactive({
   pageNum: 1,
   pageSize: 10,
+  ccId: null,
   name: '',
   mobile: '',
   legionId: null,
@@ -379,6 +388,7 @@ const handleQuery = () => {
 }
 
 const resetQuery = () => {
+  queryParams.ccId = null
   queryParams.name = ''
   queryParams.mobile = ''
   queryParams.legionId = null
