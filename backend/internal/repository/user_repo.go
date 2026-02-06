@@ -40,19 +40,19 @@ func (r *UserRepository) List(query *model.UserQuery, dataScope string) (*model.
 	var users []model.SysUser
 	var total int64
 
-	db := r.db.Model(&model.SysUser{}).Where("del_flag = '0'")
+	db := r.db.Model(&model.SysUser{}).Where("sys_user.del_flag = '0'")
 
 	if query.UserName != "" {
-		db = db.Where("user_name LIKE ?", "%"+query.UserName+"%")
+		db = db.Where("sys_user.user_name LIKE ?", "%"+query.UserName+"%")
 	}
 	if query.Phone != "" {
-		db = db.Where("phone LIKE ?", "%"+query.Phone+"%")
+		db = db.Where("sys_user.phone LIKE ?", "%"+query.Phone+"%")
 	}
 	if query.Status != "" {
-		db = db.Where("status = ?", query.Status)
+		db = db.Where("sys_user.status = ?", query.Status)
 	}
 	if query.DeptID != nil {
-		db = db.Where("dept_id = ?", *query.DeptID)
+		db = db.Where("sys_user.dept_id = ?", *query.DeptID)
 	}
 
 	// 数据权限过滤
@@ -72,7 +72,7 @@ func (r *UserRepository) List(query *model.UserQuery, dataScope string) (*model.
 	err := db.Preload("Dept").Preload("Roles").
 		Offset(query.GetOffset()).
 		Limit(query.PageSize).
-		Order("user_id DESC").
+		Order("sys_user.user_id DESC").
 		Find(&users).Error
 
 	return &model.PageResult{Total: total, Rows: users}, err
