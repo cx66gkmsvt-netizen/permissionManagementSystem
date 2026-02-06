@@ -82,40 +82,40 @@
     </el-form>
 
     <!-- 表格 -->
-    <el-table v-loading="loading" :data="ccList" border>
-      <el-table-column prop="id" label="CCID" width="80" align="center" />
-      <el-table-column prop="name" label="姓名" width="100" />
-      <el-table-column prop="nickName" label="昵称" width="100" />
-      <el-table-column prop="mobile" label="手机号" width="120" />
-      <el-table-column prop="wechat" label="微信号" width="120" />
-      <el-table-column prop="cno1" label="座席号" width="100" />
-      <el-table-column prop="cloudAccount1" label="云客账号" width="120" />
-      <el-table-column prop="legionName" label="所属军团" width="120" show-overflow-tooltip />
-      <el-table-column prop="teamName" label="所属团队" width="120" show-overflow-tooltip />
-      <el-table-column prop="squadName" label="所属战队" width="120" show-overflow-tooltip />
-      <el-table-column prop="balanceYuan" label="个人资金" width="120" align="right">
+    <el-table v-loading="loading" :data="ccList" border style="width: 100%">
+      <el-table-column prop="id" label="CCID" width="70" align="center" />
+      <el-table-column prop="name" label="姓名" min-width="80" show-overflow-tooltip />
+      <el-table-column prop="nickName" label="昵称" min-width="80" show-overflow-tooltip />
+      <el-table-column prop="mobile" label="手机号" width="110" />
+      <el-table-column prop="wechat" label="微信号" width="110" />
+      <el-table-column prop="cno1" label="座席号" width="90" />
+      <el-table-column prop="cloudAccount1" label="云客账号" width="110" />
+      <el-table-column prop="legionName" label="所属军团" min-width="100" show-overflow-tooltip />
+      <el-table-column prop="teamName" label="所属团队" min-width="100" show-overflow-tooltip />
+      <el-table-column prop="squadName" label="所属战队" min-width="100" show-overflow-tooltip />
+      <el-table-column prop="balanceYuan" label="个人资金" width="100" align="right">
         <template #default="{ row }">
           ¥ {{ row.balanceYuan?.toFixed(2) }}
         </template>
       </el-table-column>
-      <el-table-column prop="performanceYuan" label="当月业绩" width="120" align="right">
+      <el-table-column prop="performanceYuan" label="当月业绩" width="100" align="right">
         <template #default="{ row }">
           ¥ {{ row.performanceYuan?.toFixed(2) }}
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" width="80" align="center">
+      <el-table-column prop="status" label="状态" width="70" align="center">
         <template #default="{ row }">
           <el-tag :type="row.status === '0' ? 'success' : 'danger'">
             {{ row.status === '0' ? '正常' : '停用' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" width="160">
+      <el-table-column prop="createTime" label="创建时间" width="155">
         <template #default="{ row }">
           {{ formatDate(row.createTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="150" fixed="right">
+      <el-table-column label="操作" width="120" fixed="right">
         <template #default="{ row }">
           <el-button type="primary" link icon="Edit" @click="handleEdit(row)">
             编辑
