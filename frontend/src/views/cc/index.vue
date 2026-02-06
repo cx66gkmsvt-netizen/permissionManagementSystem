@@ -80,7 +80,7 @@
 
     <!-- 表格 -->
     <el-table v-loading="loading" :data="ccList" border>
-      <el-table-column type="index" label="序号" width="60" align="center" />
+      <el-table-column prop="id" label="CCID" width="80" align="center" />
       <el-table-column prop="name" label="姓名" width="100" />
       <el-table-column prop="nickName" label="昵称" width="100" />
       <el-table-column prop="mobile" label="手机号" width="120" />

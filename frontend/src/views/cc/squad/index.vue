@@ -23,6 +23,7 @@
 
     <!-- 表格 -->
     <el-table v-loading="loading" :data="list" border>
+      <el-table-column prop="id" label="战队ID" width="100" align="center" />
       <el-table-column prop="performanceRank" label="排名" width="80" align="center" />
       <el-table-column label="当月业绩" width="150" align="right">
         <template #default="{ row }">¥ {{ formatAmount(row.monthlyPerformance) }}</template>
@@ -30,7 +31,7 @@
       <el-table-column label="战队余额" width="150" align="right">
         <template #default="{ row }">¥ {{ formatAmount(row.balance) }}</template>
       </el-table-column>
-      <el-table-column prop="id" label="战队ID" width="100" />
+
       <el-table-column prop="squadName" label="战队名称" min-width="120" />
       <el-table-column prop="leaderName" label="战队长" width="100">
         <template #default="{ row }">{{ row.leaderName || '-' }}</template>

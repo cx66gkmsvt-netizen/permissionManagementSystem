@@ -21,7 +21,7 @@
 
     <!-- 表格 -->
     <el-table v-loading="loading" :data="roleList" border>
-      <el-table-column type="index" label="序号" width="60" align="center" />
+      <el-table-column prop="roleId" label="角色ID" width="80" align="center" />
       <el-table-column prop="roleName" label="角色名称" width="150" />
       <el-table-column prop="roleKey" label="权限字符" width="150" />
       <el-table-column prop="dataScope" label="数据范围" width="150">

@@ -27,7 +27,7 @@
 
     <!-- 表格 -->
     <el-table v-loading="loading" :data="userList" border>
-      <el-table-column type="index" label="序号" width="60" align="center" />
+      <el-table-column prop="userId" label="用户ID" width="80" align="center" />
       <el-table-column prop="userName" label="用户名" width="120" />
       <el-table-column prop="nickName" label="昵称" width="120" />
       <el-table-column prop="phone" label="手机号" width="120" />
