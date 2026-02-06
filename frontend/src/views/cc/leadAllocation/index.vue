@@ -49,6 +49,7 @@
     <!-- 表格 -->
     <el-table v-loading="loading" :data="list" border @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" />
+      <el-table-column prop="ccId" label="CCID" width="100" />
       <el-table-column prop="ccName" label="姓名" width="100" />
       <el-table-column prop="nickName" label="昵称" width="100" />
       <el-table-column prop="squadName" label="战队" width="100" />

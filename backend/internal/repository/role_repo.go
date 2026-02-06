@@ -35,6 +35,13 @@ func (r *RoleRepository) FindByKey(roleKey string) (*model.SysRole, error) {
 	return &role, nil
 }
 
+// FindByIDs 根据ID列表查找
+func (r *RoleRepository) FindByIDs(roleIDs []int64) ([]model.SysRole, error) {
+	var roles []model.SysRole
+	err := r.db.Where("role_id IN ? AND del_flag = '0'", roleIDs).Find(&roles).Error
+	return roles, err
+}
+
 // List 角色列表
 func (r *RoleRepository) List(query *model.RoleQuery) (*model.PageResult, error) {
 	var roles []model.SysRole

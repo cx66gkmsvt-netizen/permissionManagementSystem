@@ -15,6 +15,7 @@ type UserService struct {
 	userRepo *repository.UserRepository
 	roleRepo *repository.RoleRepository
 	deptRepo *repository.DeptRepository
+	ccRepo   *repository.CCRepository
 }
 
 func NewUserService() *UserService {
@@ -22,6 +23,7 @@ func NewUserService() *UserService {
 		userRepo: repository.NewUserRepository(),
 		roleRepo: repository.NewRoleRepository(),
 		deptRepo: repository.NewDeptRepository(),
+		ccRepo:   repository.NewCCRepository(),
 	}
 }
 
@@ -71,7 +73,15 @@ func (s *UserService) Create(ctx context.Context, req *model.CreateUserRequest, 
 	// 设置角色
 	if len(req.RoleIDs) > 0 {
 		trace.AddStep(ctx, "Set Roles", "Assigning roles: %v", req.RoleIDs)
-		return s.userRepo.SetUserRoles(user.UserID, req.RoleIDs)
+		if err := s.userRepo.SetUserRoles(user.UserID, req.RoleIDs); err != nil {
+			return err
+		}
+
+		// 同步到CC管理
+		if err := s.syncUserToCC(ctx, user, req.RoleIDs); err != nil {
+			// 仅记录错误，不阻断主流程
+			trace.AddStep(ctx, "Sync CC Failed", "Error: %v", err)
+		}
 	}
 	return nil
 }
@@ -106,9 +116,101 @@ func (s *UserService) Update(ctx context.Context, userID int64, req *model.Updat
 	// 更新角色
 	if req.RoleIDs != nil {
 		trace.AddStep(ctx, "Update Roles", "New roles: %v", req.RoleIDs)
-		return s.userRepo.SetUserRoles(userID, req.RoleIDs)
+		if err := s.userRepo.SetUserRoles(userID, req.RoleIDs); err != nil {
+			return err
+		}
+
+		// 同步到CC管理
+		if err := s.syncUserToCC(ctx, user, req.RoleIDs); err != nil {
+			trace.AddStep(ctx, "Sync CC Failed", "Error: %v", err)
+		}
+	} else {
+		// 如果只更新了用户信息，也尝试同步基本信息到CC
+		// 需要先获取当前角色
+		roles, err := s.userRepo.GetUserRoles(userID)
+		if err == nil && len(roles) > 0 {
+			var roleIDs []int64
+			for _, r := range roles {
+				roleIDs = append(roleIDs, r.RoleID)
+			}
+			if err := s.syncUserToCC(ctx, user, roleIDs); err != nil {
+				trace.AddStep(ctx, "Sync CC Failed", "Error: %v", err)
+			}
+		}
 	}
 	return nil
+}
+
+// syncUserToCC 同步用户到CC表
+func (s *UserService) syncUserToCC(ctx context.Context, user *model.SysUser, roleIDs []int64) error {
+	// 1. 获取角色Key
+	roles, err := s.roleRepo.FindByIDs(roleIDs)
+	if err != nil {
+		return err
+	}
+
+	// 2. 检查是否包含CC相关角色
+	var ccRoleKey string
+	var isCCUser bool
+	for _, role := range roles {
+		if role.RoleKey == "cc" {
+			ccRoleKey = model.RoleTypeCC
+			isCCUser = true
+			break
+		} else if role.RoleKey == "cc_team_leader" {
+			ccRoleKey = model.RoleTypeTeamLeader
+			isCCUser = true
+			break
+		} else if role.RoleKey == "cc_squad_leader" {
+			ccRoleKey = model.RoleTypeSquadLeader
+			isCCUser = true
+			break
+		} else if role.RoleKey == "cc_legion_leader" {
+			ccRoleKey = model.RoleTypeLegionLeader
+			isCCUser = true
+			break
+		}
+	}
+
+	if !isCCUser {
+		return nil
+	}
+
+	trace.AddStep(ctx, "Sync CC", "Syncing user %d to CC Member (Role: %s)", user.UserID, ccRoleKey)
+
+	// 3. 检查CC是否已存在
+	existingCC, err := s.ccRepo.Get(user.UserID)
+	if err == nil {
+		// 更新已存在的CC
+		existingCC.Name = user.NickName // 优先使用昵称
+		if existingCC.Name == "" {
+			existingCC.Name = user.UserName
+		}
+		existingCC.Mobile = user.Phone
+		existingCC.RoleType = ccRoleKey
+		existingCC.Status = user.Status
+
+		return s.ccRepo.Update(existingCC)
+	}
+
+	// 4. 创建新CC
+	newCC := &model.CCMember{
+		ID:       user.UserID, // 强制使用相同ID
+		Name:     user.NickName,
+		Mobile:   user.Phone,
+		RoleType: ccRoleKey,
+		Status:   user.Status,
+		// 初始化其他必需字段
+		CreateBy: "system", // 或者 user.CreateBy (如果是 *int64 需要处理)
+	}
+	if newCC.Name == "" {
+		newCC.Name = user.UserName
+	}
+	if newCC.Mobile == "" {
+		newCC.Mobile = fmt.Sprintf("Temp%d", user.UserID) // 必须有手机号，临时处理
+	}
+
+	return s.ccRepo.Create(newCC)
 }
 
 // Delete 删除用户
@@ -118,7 +220,16 @@ func (s *UserService) Delete(ctx context.Context, userID int64) error {
 		return errors.New("不允许删除超级管理员")
 	}
 	trace.AddStep(ctx, "DB Delete", "Deleting user record")
-	return s.userRepo.Delete(userID)
+	if err := s.userRepo.Delete(userID); err != nil {
+		return err
+	}
+
+	// 尝试逻辑删除对应CC
+	// 注意：这里可能需要确认需求，删除用户是否也删除CC身份。
+	// 暂时假设同步删除
+	_ = s.ccRepo.Delete(userID)
+
+	return nil
 }
 
 // ResetPassword 重置密码
