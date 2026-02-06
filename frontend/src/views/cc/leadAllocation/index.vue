@@ -85,6 +85,7 @@
       <el-table-column label="操作" width="80" fixed="right">
         <template #default="{ row }">
           <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+          <el-button type="primary" link @click="handleShowSingleDetail(row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -174,6 +175,12 @@
         <el-button @click="detailDialogVisible = false">关闭</el-button>
       </template>
     </el-dialog>
+
+    <LeadAllocationDetailModal
+      v-model="singleDetailVisible"
+      :cc-id="singleDetailCCId"
+      :date="currentDate"
+    />
   </div>
 </template>
 
@@ -184,6 +191,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getLeadAllocationList, updateLeadAllocation, batchUpdateIsAllocated, getLeadAllocationStats, getLeadAllocationDetail } from '@/api/leadAllocation'
 import { listAllLegion } from '@/api/legion'
+import LeadAllocationDetailModal from './components/LeadAllocationDetailModal.vue'
 
 const loading = ref(false)
 const list = ref([])
@@ -227,6 +235,14 @@ const detailDialogVisible = ref(false)
 const detailLoading = ref(false)
 const detailTitle = ref('')
 const detailList = ref([])
+
+// 单日详情弹窗
+const singleDetailVisible = ref(false)
+const singleDetailCCId = ref(0)
+const handleShowSingleDetail = (row) => {
+  singleDetailCCId.value = row.ccId
+  singleDetailVisible.value = true
+}
 
 onMounted(() => {
   loadLegions()

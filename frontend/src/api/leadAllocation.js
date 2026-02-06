@@ -47,3 +47,12 @@ export function getLeadAllocationDetail(ccId, params) {
         params
     })
 }
+
+// 获取CC分配详情单日明细
+export function getLeadAllocationSingleDetail(ccId, date) {
+    return request({
+        url: `/cc/lead-allocation/${ccId}/single-detail`,
+        method: 'get',
+        params: { date }
+    })
+}

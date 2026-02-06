@@ -197,6 +197,7 @@ func main() {
 			leadAllocationGroup.POST("/batch", middleware.OperLog("例子分配", 2), leadAllocationHandler.BatchUpdateIsAllocated)
 			leadAllocationGroup.GET("/stats", middleware.OperLog("例子分配", 0), leadAllocationHandler.Stats)
 			leadAllocationGroup.GET("/:ccId/detail", middleware.OperLog("例子分配", 0), leadAllocationHandler.Detail)
+			leadAllocationGroup.GET("/:ccId/single-detail", middleware.OperLog("例子分配", 0), leadAllocationHandler.SingleDetail)
 		}
 	}
 

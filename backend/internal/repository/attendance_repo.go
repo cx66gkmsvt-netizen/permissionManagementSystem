@@ -101,3 +101,15 @@ func (r *AttendanceRepository) CountByStatus(date time.Time) (map[string]int64, 
 	}
 	return counts, nil
 }
+
+// GetLastWorkDay 获取上一个工作日（在班）记录
+func (r *AttendanceRepository) GetLastWorkDay(ccID int64, beforeDate time.Time) (*model.CCAttendance, error) {
+	var record model.CCAttendance
+	err := r.db.Where("cc_id = ? AND attendance_date < ? AND status = ?", ccID, beforeDate, model.AttendanceStatusOnDuty).
+		Order("attendance_date desc").
+		First(&record).Error
+	if err != nil {
+		return nil, err
+	}
+	return &record, nil
+}

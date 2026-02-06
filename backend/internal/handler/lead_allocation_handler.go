@@ -112,3 +112,21 @@ func (h *LeadAllocationHandler) Detail(c *gin.Context) {
 	}
 	pkg.OK(c, list)
 }
+
+// SingleDetail 获取分配详情单日明细
+func (h *LeadAllocationHandler) SingleDetail(c *gin.Context) {
+	ccID, _ := strconv.ParseInt(c.Param("ccId"), 10, 64)
+	date := c.Query("date")
+
+	if date == "" {
+		pkg.FailCode(c, 400, "请提供日期参数")
+		return
+	}
+
+	result, err := h.svc.GetSingleDetail(ccID, date)
+	if err != nil {
+		pkg.Fail(c, err.Error())
+		return
+	}
+	pkg.OK(c, result)
+}

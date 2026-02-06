@@ -141,3 +141,34 @@ type UpdatePasswordRequest struct {
 	OldPassword string `json:"oldPassword" binding:"required"`
 	NewPassword string `json:"newPassword" binding:"required,min=6,max=20"`
 }
+
+// LeadAllocationSingleDetailDTO 分配详情单日明细DTO
+type LeadAllocationSingleDetailDTO struct {
+	CCID               int64   `json:"ccId"`
+	CCName             string  `json:"ccName"`
+	NickName           string  `json:"nickName"`
+	Date               string  `json:"date"`
+	DayOfWeek          string  `json:"dayOfWeek"`
+	AllocationTime     string  `json:"allocationTime"` // 分配时间 (Mock)
+	AllocationRule     string  `json:"allocationRule"`
+	AllocationReason   string  `json:"allocationReason"`
+	IsAllocated        string  `json:"isAllocated"`
+	AttendanceStatus   string  `json:"attendanceStatus"`
+	LastWorkDay        string  `json:"lastWorkDay"`
+	LastWorkDayCallDur int     `json:"lastWorkDayCallDur"` // 秒
+	LastWorkDayCallCnt int     `json:"lastWorkDayCallCnt"` // 次
+	CallDurationTarget int     `json:"callDurationTarget"`
+	CallCountTarget    int     `json:"callCountTarget"`
+	LastWorkDayReach   bool    `json:"lastWorkDayReach"` // 是否达标
+	ExpectedAllocation int     `json:"expectedAllocation"`
+	ActualAllocation   int     `json:"actualAllocation"`
+	Overdraft          int     `json:"overdraft"`
+	LevelBreakdown     []Level `json:"levelBreakdown"` // 只有SuperCC有值
+}
+
+type Level struct {
+	Name      string `json:"name"`
+	Predicted int    `json:"predicted"`
+	Overdraft int    `json:"overdraft"`
+	Actual    int    `json:"actual"`
+}

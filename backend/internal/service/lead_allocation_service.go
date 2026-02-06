@@ -4,17 +4,21 @@ import (
 	"time"
 	"user-center/internal/model"
 	"user-center/internal/repository"
+
+	"gorm.io/gorm"
 )
 
 type LeadAllocationService struct {
-	repo   *repository.LeadAllocationRepository
-	ccRepo *repository.CCRepository
+	repo           *repository.LeadAllocationRepository
+	ccRepo         *repository.CCRepository
+	attendanceRepo *repository.AttendanceRepository
 }
 
 func NewLeadAllocationService() *LeadAllocationService {
 	return &LeadAllocationService{
-		repo:   repository.NewLeadAllocationRepository(),
-		ccRepo: repository.NewCCRepository(),
+		repo:           repository.NewLeadAllocationRepository(),
+		ccRepo:         repository.NewCCRepository(),
+		attendanceRepo: repository.NewAttendanceRepository(),
 	}
 }
 
@@ -199,4 +203,83 @@ func (s *LeadAllocationService) GetAllocationDetail(ccID int64, startDate, endDa
 		})
 	}
 	return details, nil
+}
+
+// GetSingleDetail 获取分配详情单日明细
+func (s *LeadAllocationService) GetSingleDetail(ccID int64, dateStr string) (*model.LeadAllocationSingleDetailDTO, error) {
+	date, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return nil, err
+	}
+
+	// 1. 获取CC信息
+	ccMember, err := s.ccRepo.Get(ccID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. 获取分配信息
+	allocation, err := s.repo.GetByCCIDAndDate(ccID, date)
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. 查找上一个工作日
+	lastWorkDayRecord, err := s.attendanceRepo.GetLastWorkDay(ccID, date)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	// 4. 构建DTO
+	dto := &model.LeadAllocationSingleDetailDTO{
+		CCID:               ccMember.ID,
+		CCName:             ccMember.Name,
+		NickName:           ccMember.NickName,
+		Date:               dateStr,
+		DayOfWeek:          weekdayMap[date.Weekday()],
+		AllocationTime:     "14:00", // Mock
+		IsAllocated:        "0",
+		AttendanceStatus:   ccMember.AttendanceStatus,
+		CallDurationTarget: ccMember.CallDurationTarget,
+		CallCountTarget:    ccMember.CallCountTarget,
+	}
+
+	if allocation != nil {
+		dto.AllocationRule = allocation.AllocationRule
+		dto.AllocationReason = allocation.AllocationReason
+		dto.IsAllocated = allocation.IsAllocated
+		dto.ExpectedAllocation = allocation.ExpectedAllocation
+		dto.ActualAllocation = allocation.ActualAllocation
+		dto.Overdraft = allocation.Overdraft
+	}
+
+	if lastWorkDayRecord != nil {
+		dto.LastWorkDay = lastWorkDayRecord.AttendanceDate.Format("2006-01-02")
+		// Mock 上一工作日数据
+		dto.LastWorkDayCallCnt = 21   // Mock
+		dto.LastWorkDayCallDur = 7680 // Mock 2h 8m
+		dto.LastWorkDayReach = true   // Mock
+	}
+
+	// 5. 判断是否为SuperCC (军团长/团长) 并添加 breakdown
+	// RoleType: legion_leader (军团长), team_leader (团长), squad_leader (战队长), cc (Cc)
+	if ccMember.RoleType == model.RoleTypeLegionLeader || ccMember.RoleType == model.RoleTypeTeamLeader {
+		dto.LevelBreakdown = []model.Level{
+			{Name: "A", Predicted: 5, Overdraft: 1, Actual: 5},
+			{Name: "B", Predicted: 5, Overdraft: 1, Actual: 5},
+			{Name: "C", Predicted: 5, Overdraft: 1, Actual: 5},
+		}
+	}
+
+	return dto, nil
+}
+
+var weekdayMap = map[time.Weekday]string{
+	time.Sunday:    "周日",
+	time.Monday:    "周一",
+	time.Tuesday:   "周二",
+	time.Wednesday: "周三",
+	time.Thursday:  "周四",
+	time.Friday:    "周五",
+	time.Saturday:  "周六",
 }
