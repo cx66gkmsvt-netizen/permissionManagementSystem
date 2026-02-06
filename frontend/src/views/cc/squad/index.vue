@@ -88,7 +88,7 @@
         </el-form-item>
         <el-form-item v-if="form.id" label="战队长">
           <el-select v-model="form.leaderId" placeholder="请选择战队长" clearable style="width: 100%">
-            <el-option v-for="item in leaderOptions" :key="item.id" :label="item.nickName" :value="item.id" />
+            <el-option v-for="item in leaderOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -193,6 +193,7 @@ import { ElMessage } from 'element-plus'
 import { listCCSquad, getCCSquad, createCCSquad, updateCCSquad, getCCSquadLogs, getCCSquadFund, editCCSquadFund, rechargeCCSquad, transferCCSquad, getCCSquadBills } from '@/api/ccSquad'
 import { listAllCCTeam } from '@/api/ccTeam'
 import { listCC } from '@/api/cc'
+import { listUser } from '@/api/user'
 
 const loading = ref(false)
 const list = ref([])
@@ -274,8 +275,9 @@ const handleEdit = async (row) => {
   const res = await getCCSquad(row.id)
   const data = res.data
   Object.assign(form, { id: data.id, squadName: data.squadName, teamId: data.teamId, leaderId: data.leaderId })
-  // 加载可选战队长：必须是战队长角色
-  leaderOptions.value = ccOptions.value.filter(cc => cc.roleType === 'squad_leader')
+  // 加载可选战队长：必须是战队长角色 (从用户表加载)
+  const userRes = await listUser({ roleKey: 'squad_leader', pageSize: 1000 })
+  leaderOptions.value = userRes.data.rows || []
   dialogTitle.value = '编辑战队'
   dialogVisible.value = true
 }

@@ -60,6 +60,13 @@ func (r *UserRepository) List(query *model.UserQuery, dataScope string) (*model.
 		db = db.Where(dataScope)
 	}
 
+	// 角色筛选
+	if query.RoleKey != "" {
+		db = db.Joins("JOIN sys_user_role sur ON sys_user.user_id = sur.user_id").
+			Joins("JOIN sys_role sr ON sur.role_id = sr.role_id").
+			Where("sr.role_key = ?", query.RoleKey)
+	}
+
 	db.Count(&total)
 
 	err := db.Preload("Dept").Preload("Roles").

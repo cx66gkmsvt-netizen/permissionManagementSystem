@@ -48,6 +48,7 @@ type UserQuery struct {
 	Phone    string `json:"phone" form:"phone"`
 	Status   string `json:"status" form:"status"`
 	DeptID   *int64 `json:"deptId" form:"deptId"`
+	RoleKey  string `json:"roleKey" form:"roleKey"`
 }
 
 // RoleQuery 角色查询

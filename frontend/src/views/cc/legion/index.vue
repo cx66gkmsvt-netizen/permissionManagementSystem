@@ -66,12 +66,12 @@
         </el-form-item>
         <el-form-item v-if="form.id" label="军团长">
           <el-select v-model="form.leaderId" placeholder="请选择军团长" clearable style="width: 100%">
-            <el-option
-              v-for="item in leaderOptions"
-              :key="item.id"
-              :label="item.nickName"
-              :value="item.id"
-            />
+              <el-option
+                v-for="item in leaderOptions"
+                :key="item.userId"
+                :label="item.nickName"
+                :value="item.userId"
+              />
           </el-select>
         </el-form-item>
       </el-form>
@@ -227,6 +227,7 @@ import {
   getLegionBills
 } from '@/api/legion'
 import { listCC } from '@/api/cc'
+import { listUser } from '@/api/user'
 
 const loading = ref(false)
 const list = ref([])
@@ -369,10 +370,10 @@ const handleEdit = async (row) => {
   form.id = data.id
   form.legionName = data.legionName
   form.leaderId = data.leaderId
-  // 加载可选军团长：必须是军团长角色
-  leaderOptions.value = ccOptions.value.filter(cc => 
-    cc.roleType === 'legion_leader'
-  )
+  form.leaderId = data.leaderId
+  // 加载可选军团长：必须是军团长角色 (从用户表加载)
+  const userRes = await listUser({ roleKey: 'legion_leader', pageSize: 1000 })
+  leaderOptions.value = userRes.data.rows || []
   dialogTitle.value = '编辑军团'
   dialogVisible.value = true
 }
