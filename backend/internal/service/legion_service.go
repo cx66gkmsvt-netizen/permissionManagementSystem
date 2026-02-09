@@ -105,6 +105,11 @@ func (s *LegionService) Update(id int64, dto *model.LegionUpdateDTO, operatorID 
 	if dto.LeaderID != nil && (oldLeaderID == nil || *dto.LeaderID != *oldLeaderID) {
 		leaderChanged = true
 
+		// 验证新军团长是否已担任其他军团长
+		if !s.repo.CheckLeaderUnique(*dto.LeaderID, id) {
+			return errors.New("该用户已担任其他军团的军团长，不可选择")
+		}
+
 		// 验证交易金额
 		if dto.TransactionAmount == nil || *dto.TransactionAmount <= 0 {
 			return errors.New("晋升军团长需要输入交易金额")

@@ -127,3 +127,14 @@ func (r *CCTeamRepository) CountByLegionID(legionID int64) (int64, error) {
 	err := r.db.Model(&model.CCTeam{}).Where("legion_id = ? AND del_flag = '0'", legionID).Count(&count).Error
 	return count, err
 }
+
+// CheckLeaderUnique 检查团长是否唯一（不在其他团队任职）
+func (r *CCTeamRepository) CheckLeaderUnique(leaderID int64, excludeTeamID int64) bool {
+	var count int64
+	query := r.db.Model(&model.CCTeam{}).Where("leader_id = ? AND del_flag = '0'", leaderID)
+	if excludeTeamID > 0 {
+		query = query.Where("id != ?", excludeTeamID)
+	}
+	query.Count(&count)
+	return count == 0
+}

@@ -133,3 +133,14 @@ func (r *CCSquadRepository) GetSquadLeaderID(squadID int64) (*int64, error) {
 	err := r.db.Select("leader_id").First(&squad, squadID).Error
 	return squad.LeaderID, err
 }
+
+// CheckLeaderUnique 检查战队长是否唯一（不在其他战队任职）
+func (r *CCSquadRepository) CheckLeaderUnique(leaderID int64, excludeSquadID int64) bool {
+	var count int64
+	query := r.db.Model(&model.CCSquad{}).Where("leader_id = ? AND del_flag = '0'", leaderID)
+	if excludeSquadID > 0 {
+		query = query.Where("id != ?", excludeSquadID)
+	}
+	query.Count(&count)
+	return count == 0
+}

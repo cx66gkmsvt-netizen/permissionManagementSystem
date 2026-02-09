@@ -100,3 +100,14 @@ func (r *LegionRepository) GetBalance(id int64) (int64, error) {
 	err := r.db.Select("balance").First(&legion, id).Error
 	return legion.Balance, err
 }
+
+// CheckLeaderUnique 检查军团长是否唯一（不在其他军团任职）
+func (r *LegionRepository) CheckLeaderUnique(leaderID int64, excludeLegionID int64) bool {
+	var count int64
+	query := r.db.Model(&model.CCLegion{}).Where("leader_id = ? AND del_flag = '0'", leaderID)
+	if excludeLegionID > 0 {
+		query = query.Where("id != ?", excludeLegionID)
+	}
+	query.Count(&count)
+	return count == 0
+}

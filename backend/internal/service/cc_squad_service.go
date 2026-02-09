@@ -153,6 +153,11 @@ func (s *CCSquadService) Update(id int64, dto *model.SquadUpdateDTO, operatorID 
 	if dto.LeaderID != nil && (oldLeaderID == nil || *dto.LeaderID != *oldLeaderID) {
 		leaderChanged = true
 
+		// 验证新战队长是否已担任其他战队战队长
+		if !s.repo.CheckLeaderUnique(*dto.LeaderID, id) {
+			return errors.New("该用户已担任其他战队的战队长，不可选择")
+		}
+
 		// 验证交易金额
 		if dto.TransactionAmount == nil || *dto.TransactionAmount <= 0 {
 			return errors.New("晋升战队长需要输入交易金额")
