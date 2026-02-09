@@ -192,9 +192,9 @@
           <el-select v-model="transferForm.recipientId" placeholder="请选择收账人" filterable style="width: 100%">
             <el-option
               v-for="item in ccOptions"
-              :key="item.id"
+              :key="item.userId"
               :label="item.nickName"
-              :value="item.id"
+              :value="item.userId"
             />
           </el-select>
         </el-form-item>

@@ -178,7 +178,7 @@
     <el-dialog v-model="transferDialogVisible" title="转账" width="400px">
       <el-form ref="transferFormRef" :model="transferForm" :rules="transferRules" label-width="100px">
         <el-form-item label="转账金额"><el-input-number v-model="transferForm.amount" :min="1" :precision="0" style="width: 100%" /></el-form-item>
-        <el-form-item label="收账人"><el-select v-model="transferForm.recipientId" filterable style="width: 100%"><el-option v-for="item in ccOptions" :key="item.id" :label="item.nickName" :value="item.id" /></el-select></el-form-item>
+        <el-form-item label="收账人"><el-select v-model="transferForm.recipientId" filterable style="width: 100%"><el-option v-for="item in ccOptions" :key="item.userId" :label="item.nickName" :value="item.userId" /></el-select></el-form-item>
       </el-form>
       <template #footer><el-button @click="transferDialogVisible = false">取消</el-button><el-button type="primary" :loading="submitLoading" @click="handleTransferSubmit">确认</el-button></template>
     </el-dialog>
