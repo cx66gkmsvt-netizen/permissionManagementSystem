@@ -331,16 +331,22 @@ func (s *CCTeamService) GetLogs(id int64) ([]model.CCManageLog, error) {
 // fillTeamInfo 填充团队关联信息
 func (s *CCTeamService) fillTeamInfo(team *model.CCTeam) {
 	if team.LeaderID != nil {
-		if leader, err := s.ccRepo.Get(*team.LeaderID); err == nil {
+		if leader, err := s.userRepo.FindByID(*team.LeaderID); err == nil {
 			team.LeaderName = leader.NickName
+			if team.LeaderName == "" {
+				team.LeaderName = leader.UserName
+			}
 		}
 	}
 	if team.LegionID != nil {
 		if legion, err := s.legionRepo.Get(*team.LegionID); err == nil {
 			team.LegionName = legion.LegionName
 			if legion.LeaderID != nil {
-				if legionLeader, err := s.ccRepo.Get(*legion.LeaderID); err == nil {
+				if legionLeader, err := s.userRepo.FindByID(*legion.LeaderID); err == nil {
 					team.LegionLeaderName = legionLeader.NickName
+					if team.LegionLeaderName == "" {
+						team.LegionLeaderName = legionLeader.UserName
+					}
 				}
 			}
 		}

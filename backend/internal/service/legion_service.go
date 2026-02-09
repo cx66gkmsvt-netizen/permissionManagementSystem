@@ -241,8 +241,11 @@ func (s *LegionService) GetLogs(id int64) ([]model.CCManageLog, error) {
 // fillLegionInfo 填充军团关联信息
 func (s *LegionService) fillLegionInfo(legion *model.CCLegion) {
 	if legion.LeaderID != nil {
-		if leader, err := s.ccRepo.Get(*legion.LeaderID); err == nil {
+		if leader, err := s.userRepo.FindByID(*legion.LeaderID); err == nil {
 			legion.LeaderName = leader.NickName
+			if legion.LeaderName == "" {
+				legion.LeaderName = leader.UserName
+			}
 		}
 	}
 	// TODO: 计算月度业绩和排名

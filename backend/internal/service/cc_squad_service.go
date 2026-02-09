@@ -316,16 +316,22 @@ func (s *CCSquadService) GetLogs(id int64) ([]model.CCManageLog, error) {
 // fillSquadInfo 填充战队关联信息
 func (s *CCSquadService) fillSquadInfo(squad *model.CCSquad) {
 	if squad.LeaderID != nil {
-		if leader, err := s.ccRepo.Get(*squad.LeaderID); err == nil {
+		if leader, err := s.userRepo.FindByID(*squad.LeaderID); err == nil {
 			squad.LeaderName = leader.NickName
+			if squad.LeaderName == "" {
+				squad.LeaderName = leader.UserName
+			}
 		}
 	}
 
 	if team, err := s.teamRepo.Get(squad.TeamID); err == nil {
 		squad.TeamName = team.TeamName
 		if team.LeaderID != nil {
-			if teamLeader, err := s.ccRepo.Get(*team.LeaderID); err == nil {
+			if teamLeader, err := s.userRepo.FindByID(*team.LeaderID); err == nil {
 				squad.TeamLeaderName = teamLeader.NickName
+				if squad.TeamLeaderName == "" {
+					squad.TeamLeaderName = teamLeader.UserName
+				}
 			}
 		}
 
@@ -334,8 +340,11 @@ func (s *CCSquadService) fillSquadInfo(squad *model.CCSquad) {
 			if legion, err := s.legionRepo.Get(*team.LegionID); err == nil {
 				squad.LegionName = legion.LegionName
 				if legion.LeaderID != nil {
-					if legionLeader, err := s.ccRepo.Get(*legion.LeaderID); err == nil {
+					if legionLeader, err := s.userRepo.FindByID(*legion.LeaderID); err == nil {
 						squad.LegionLeaderName = legionLeader.NickName
+						if squad.LegionLeaderName == "" {
+							squad.LegionLeaderName = legionLeader.UserName
+						}
 					}
 				}
 			}
