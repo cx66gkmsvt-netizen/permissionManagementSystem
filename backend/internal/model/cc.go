@@ -2,7 +2,7 @@ package model
 
 // CCMember CC成员表
 type CCMember struct {
-	ID       int64  `json:"id" gorm:"primaryKey;autoIncrement;column:id;comment:CC成员ID"`
+	ID       int64  `json:"id,string" gorm:"primaryKey;autoIncrement;column:id;comment:CC成员ID"`
 	Name     string `json:"name" gorm:"column:name;size:50;not null;comment:老师名/姓名"`
 	NickName string `json:"nickName" gorm:"column:nick_name;size:50;comment:昵称"`
 	Mobile   string `json:"mobile" gorm:"column:mobile;size:11;not null;uniqueIndex;comment:手机号/账号"`
@@ -28,9 +28,9 @@ type CCMember struct {
 	BaichuanOutboundList int `json:"baichuanOutboundList" gorm:"column:baichuan_outbound_list;default:0;comment:百川客户列表智能外呼(0关闭 1开启)"`
 
 	// 组织架构
-	SquadID  *int64 `json:"squadId" gorm:"column:squad_id;comment:所属战队ID"`
-	TeamID   *int64 `json:"teamId" gorm:"column:team_id;comment:所属团队ID"`
-	LegionID *int64 `json:"legionId" gorm:"column:legion_id;comment:所属军团ID"`
+	SquadID  *int64 `json:"squadId,string" gorm:"column:squad_id;comment:所属战队ID"`
+	TeamID   *int64 `json:"teamId,string" gorm:"column:team_id;comment:所属团队ID"`
+	LegionID *int64 `json:"legionId,string" gorm:"column:legion_id;comment:所属军团ID"`
 
 	// 资金和业绩
 	Balance            int64 `json:"balance" gorm:"column:balance;default:0;comment:个人余额(分)"`

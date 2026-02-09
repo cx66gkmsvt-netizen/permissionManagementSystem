@@ -110,8 +110,8 @@ func (s *CCSquadService) Create(dto *model.SquadCreateDTO, operatorID int64, ope
 
 	// 记录资金日志
 	if dto.TransactionAmount > 0 {
-		fundLogContent := fmt.Sprintf("%s（团队ID%d）添加战队%s（战队ID%d）减少团队资金%d分",
-			team.TeamName, team.ID, squad.SquadName, squad.ID, dto.TransactionAmount)
+		fundLogContent := fmt.Sprintf("%s（团队ID%d）添加战队%s（战队ID%d）减少团队资金%.2f分",
+			team.TeamName, team.ID, squad.SquadName, squad.ID, float64(dto.TransactionAmount)/100)
 		s.logRepo.CreateFundLog(&model.CCFundLog{
 			LogType:        model.FundLogTypeAddSquad,
 			TargetType:     "team",
@@ -186,8 +186,8 @@ func (s *CCSquadService) Update(id int64, dto *model.SquadUpdateDTO, operatorID 
 		s.ccRepo.Update(&model.CCMember{ID: *dto.LeaderID, RoleType: model.RoleTypeSquadLeader, SquadID: &id})
 
 		// 记录晋升战队长日志
-		fundLogContent := fmt.Sprintf("%s（CCID%d）晋升为%s（战队ID%d）的战队长，扣除个人资金%d分，战队资金增加%d分",
-			newLeader.NickName, newLeader.ID, dto.SquadName, id, *dto.TransactionAmount, *dto.TransactionAmount)
+		fundLogContent := fmt.Sprintf("%s（CCID%d）晋升为%s（战队ID%d）的战队长，扣除个人资金%.2f分，战队资金增加%.2f分",
+			newLeader.NickName, newLeader.ID, dto.SquadName, id, float64(*dto.TransactionAmount)/100, float64(*dto.TransactionAmount)/100)
 		s.logRepo.CreateFundLog(&model.CCFundLog{
 			LogType:        model.FundLogTypePromoteSquadLeader,
 			TargetType:     "cc",

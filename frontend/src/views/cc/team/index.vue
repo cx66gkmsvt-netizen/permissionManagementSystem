@@ -90,7 +90,7 @@
         </el-form-item>
         <el-form-item v-if="form.id" label="团长">
           <el-select v-model="form.leaderId" placeholder="请选择团长" clearable style="width: 100%">
-            <el-option v-for="item in leaderOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
+            <el-option v-for="item in leaderOptions" :key="item.id" :label="item.nickName" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="所属军团">
@@ -355,11 +355,33 @@ const handleEdit = async (row) => {
   const data = res.data
   Object.assign(form, { id: data.id, teamName: data.teamName, businessType: data.businessType, leaderId: data.leaderId, legionId: data.legionId })
   originalLegionId.value = data.legionId
-  // 加载可选团长：必须是CC团长角色 (从用户表加载)
-  const userRes = await listUser({ roleKey: 'cc_team_leader', pageSize: 1000 })
-  leaderOptions.value = userRes.data.rows || []
+  
+  // 加载可选团长：必须是当前军团下的CC团长
+  await loadLeaderOptions(data.legionId)
+  
   dialogTitle.value = `编辑团队（${data.id}）`
   dialogVisible.value = true
+}
+
+// 监听军团变化，重新加载可选团长
+watch(() => form.legionId, (newVal) => {
+  if (dialogVisible.value) {
+    loadLeaderOptions(newVal)
+  }
+})
+
+const loadLeaderOptions = async (legionId) => {
+  if (!legionId) {
+    leaderOptions.value = []
+    return
+  }
+  // 使用 listCC 接口，筛选指定军团下的团长
+  const res = await listCC({ 
+    roleType: 'team_leader', 
+    legionId: legionId, 
+    pageSize: 1000 
+  })
+  leaderOptions.value = res.data.rows || []
 }
 
 const handleSubmit = async () => {

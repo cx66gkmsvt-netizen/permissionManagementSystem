@@ -138,8 +138,8 @@ func (s *LegionService) Update(id int64, dto *model.LegionUpdateDTO, operatorID 
 		s.ccRepo.Update(&model.CCMember{ID: *dto.LeaderID, RoleType: model.RoleTypeLegionLeader, LegionID: &id})
 
 		// 记录晋升军团长日志
-		fundLogContent := fmt.Sprintf("%s（CCID%d）晋升为%s（军团ID%d）的军团长，扣除个人资金%d分，军团资金增加%d分",
-			newLeader.NickName, newLeader.ID, dto.LegionName, id, *dto.TransactionAmount, *dto.TransactionAmount)
+		fundLogContent := fmt.Sprintf("%s（CCID%d）晋升为%s（军团ID%d）的军团长，扣除个人资金%.2f分，军团资金增加%.2f分",
+			newLeader.NickName, newLeader.ID, dto.LegionName, id, float64(*dto.TransactionAmount)/100, float64(*dto.TransactionAmount)/100)
 		s.logRepo.CreateFundLog(&model.CCFundLog{
 			LogType:         model.FundLogTypePromoteLegionLeader,
 			TargetType:      "cc",

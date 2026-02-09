@@ -69,7 +69,7 @@ func (s *CCFundService) EditCCBalance(ccID int64, dto *model.FundEditDTO, operat
 	}
 
 	// 记录日志
-	logContent := fmt.Sprintf("修改原因为【%s】从 %d 改为 %d", dto.Reason, oldBalance, newBalance)
+	logContent := fmt.Sprintf("修改原因为【%s】从 %.2f 改为 %.2f", dto.Reason, float64(oldBalance)/100, float64(newBalance)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeCCBalanceEdit,
 		TargetType:    "cc",
@@ -133,7 +133,7 @@ func (s *CCFundService) EditSquadBalance(squadID int64, dto *model.FundEditDTO, 
 		return err
 	}
 
-	logContent := fmt.Sprintf("修改原因为【%s】从 %d 改为 %d", dto.Reason, oldBalance, newBalance)
+	logContent := fmt.Sprintf("修改原因为【%s】从 %.2f 改为 %.2f", dto.Reason, float64(oldBalance)/100, float64(newBalance)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeSquadBalanceEdit,
 		TargetType:    "squad",
@@ -183,8 +183,8 @@ func (s *CCFundService) SquadRecharge(squadID int64, dto *model.FundRechargeDTO,
 		return err
 	}
 
-	logContent := fmt.Sprintf("战队ID%d充值%d分，战队长%s（CCID%d）个人资金减少%d分，战队资金增加%d分",
-		squadID, dto.Amount, leader.NickName, leader.ID, dto.Amount, dto.Amount)
+	logContent := fmt.Sprintf("战队ID%d充值%.2f分，战队长%s（CCID%d）个人资金减少%.2f分，战队资金增加%.2f分",
+		squadID, float64(dto.Amount)/100, leader.NickName, leader.ID, float64(dto.Amount)/100, float64(dto.Amount)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeSquadRecharge,
 		TargetType:    "squad",
@@ -231,8 +231,8 @@ func (s *CCFundService) SquadTransfer(squadID int64, dto *model.FundTransferDTO,
 		return err
 	}
 
-	logContent := fmt.Sprintf("战队ID%d转账%d分给%s（CCID%d），战队资金减少%d分，个人资金增加%d分",
-		squadID, dto.Amount, recipient.NickName, recipient.ID, dto.Amount, transferAmount)
+	logContent := fmt.Sprintf("战队ID%d转账%.2f分给%s（CCID%d），战队资金减少%.2f分，个人资金增加%.2f分",
+		squadID, float64(dto.Amount)/100, recipient.NickName, recipient.ID, float64(dto.Amount)/100, float64(transferAmount)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeSquadTransfer,
 		TargetType:    "squad",
@@ -296,7 +296,7 @@ func (s *CCFundService) EditTeamBalance(teamID int64, dto *model.FundEditDTO, op
 		return err
 	}
 
-	logContent := fmt.Sprintf("修改原因为【%s】从 %d 改为 %d", dto.Reason, oldBalance, newBalance)
+	logContent := fmt.Sprintf("修改原因为【%s】从 %.2f 改为 %.2f", dto.Reason, float64(oldBalance)/100, float64(newBalance)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeTeamBalanceEdit,
 		TargetType:    "team",
@@ -344,8 +344,8 @@ func (s *CCFundService) TeamRecharge(teamID int64, dto *model.FundRechargeDTO, o
 		return err
 	}
 
-	logContent := fmt.Sprintf("团队ID%d充值%d分，团长%s（CCID%d）个人资金减少%d分，团队资金增加%d分",
-		teamID, dto.Amount, leader.NickName, leader.ID, dto.Amount, dto.Amount)
+	logContent := fmt.Sprintf("团队ID%d充值%.2f分，团长%s（CCID%d）个人资金减少%.2f分，团队资金增加%.2f分",
+		teamID, float64(dto.Amount)/100, leader.NickName, leader.ID, float64(dto.Amount)/100, float64(dto.Amount)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeTeamRecharge,
 		TargetType:    "team",
@@ -390,8 +390,8 @@ func (s *CCFundService) TeamTransfer(teamID int64, dto *model.FundTransferDTO, o
 		return err
 	}
 
-	logContent := fmt.Sprintf("团队ID%d转账%d分给%s（CCID%d），团队资金减少%d分，个人资金增加%d分",
-		teamID, dto.Amount, recipient.NickName, recipient.ID, dto.Amount, transferAmount)
+	logContent := fmt.Sprintf("团队ID%d转账%.2f分给%s（CCID%d），团队资金减少%.2f分，个人资金增加%.2f分",
+		teamID, float64(dto.Amount)/100, recipient.NickName, recipient.ID, float64(dto.Amount)/100, float64(transferAmount)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeTeamTransfer,
 		TargetType:    "team",
@@ -455,7 +455,7 @@ func (s *CCFundService) EditLegionBalance(legionID int64, dto *model.FundEditDTO
 		return err
 	}
 
-	logContent := fmt.Sprintf("修改原因为【%s】从 %d 改为 %d", dto.Reason, oldBalance, newBalance)
+	logContent := fmt.Sprintf("修改原因为【%s】从 %.2f 改为 %.2f", dto.Reason, float64(oldBalance)/100, float64(newBalance)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeLegionBalanceEdit,
 		TargetType:    "legion",
@@ -503,8 +503,8 @@ func (s *CCFundService) LegionRecharge(legionID int64, dto *model.FundRechargeDT
 		return err
 	}
 
-	logContent := fmt.Sprintf("军团ID%d充值%d分，军团长%s（CCID%d）个人资金减少%d分，军团资金增加%d分",
-		legionID, dto.Amount, leader.NickName, leader.ID, dto.Amount, dto.Amount)
+	logContent := fmt.Sprintf("军团ID%d充值%.2f分，军团长%s（CCID%d）个人资金减少%.2f分，军团资金增加%.2f分",
+		legionID, float64(dto.Amount)/100, leader.NickName, leader.ID, float64(dto.Amount)/100, float64(dto.Amount)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeLegionRecharge,
 		TargetType:    "legion",
@@ -548,8 +548,8 @@ func (s *CCFundService) LegionTransfer(legionID int64, dto *model.FundTransferDT
 		return err
 	}
 
-	logContent := fmt.Sprintf("军团ID%d转账%d分给%s（CCID%d），军团资金减少%d分，个人资金增加%d分",
-		legionID, dto.Amount, recipient.NickName, recipient.ID, dto.Amount, dto.Amount)
+	logContent := fmt.Sprintf("军团ID%d转账%.2f分给%s（CCID%d），军团资金减少%.2f分，个人资金增加%.2f分",
+		legionID, float64(dto.Amount)/100, recipient.NickName, recipient.ID, float64(dto.Amount)/100, float64(dto.Amount)/100)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeLegionTransfer,
 		TargetType:    "legion",
@@ -671,8 +671,8 @@ func (s *CCFundService) AdminTransfer(dto *model.AdminTransferDTO, operatorID in
 		s.ccRepo.UpdateBalance(dto.ToID, cc.Balance+dto.Amount)
 	}
 
-	logContent := fmt.Sprintf("%s ID%d %s 转账%d分给 %s ID%d %s",
-		dto.FromType, dto.FromID, fromName, dto.Amount, dto.ToType, dto.ToID, toName)
+	logContent := fmt.Sprintf("%s ID%d %s 转账%.2f分给 %s ID%d %s",
+		dto.FromType, dto.FromID, fromName, float64(dto.Amount)/100, dto.ToType, dto.ToID, toName)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeAdminTransfer,
 		TargetType:    dto.FromType,

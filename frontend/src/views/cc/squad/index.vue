@@ -88,7 +88,7 @@
         </el-form-item>
         <el-form-item v-if="form.id" label="战队长">
           <el-select v-model="form.leaderId" placeholder="请选择战队长" clearable style="width: 100%">
-            <el-option v-for="item in leaderOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
+            <el-option v-for="item in leaderOptions" :key="item.id" :label="item.nickName" :value="item.id" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -275,14 +275,34 @@ const handleEdit = async (row) => {
   const res = await getCCSquad(row.id)
   const data = res.data
   Object.assign(form, { id: data.id, squadName: data.squadName, teamId: data.teamId, leaderId: data.leaderId })
-  // 加载可选战队长：必须是CC战队长角色 (从用户表加载)
-  const userRes = await listUser({ roleKey: 'cc_squad_leader', pageSize: 1000 })
-  leaderOptions.value = userRes.data.rows || []
+  
+  // 加载可选战队长：必须是当前团队下的CC战队长
+  await loadLeaderOptions(data.teamId)
+
   dialogTitle.value = '编辑战队'
   dialogVisible.value = true
 }
 
-const handleTeamChange = () => { /* 可用于动态显示军团 */ }
+const handleTeamChange = (val) => { 
+  loadLeaderOptions(val)
+  form.leaderId = null // 切换团队时清空已选战队长
+}
+
+const loadLeaderOptions = async (teamId) => {
+  if (!teamId) {
+    leaderOptions.value = []
+    return
+  }
+  // 使用 listCC 接口，筛选指定团队下的战队长
+  const res = await listCC({ 
+    roleType: 'squad_leader', 
+    teamId: teamId, 
+    pageSize: 1000 
+  })
+  leaderOptions.value = res.data.rows || []
+}
+
+
 
 const handleSubmit = async () => {
   await formRef.value.validate()

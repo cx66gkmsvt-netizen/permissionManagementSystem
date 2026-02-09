@@ -6,9 +6,9 @@ import (
 
 // CCLegion 军团表
 type CCLegion struct {
-	ID         int64  `json:"id" gorm:"primaryKey;autoIncrement;column:id;comment:军团ID"`
+	ID         int64  `json:"id,string" gorm:"primaryKey;autoIncrement;column:id;comment:军团ID"`
 	LegionName string `json:"legionName" gorm:"column:legion_name;size:50;not null;uniqueIndex;comment:军团名称"`
-	LeaderID   *int64 `json:"leaderId" gorm:"column:leader_id;comment:军团长ID"`
+	LeaderID   *int64 `json:"leaderId,string" gorm:"column:leader_id;comment:军团长ID"`
 	Balance    int64  `json:"balance" gorm:"column:balance;default:0;comment:军团余额(分)"`
 	Status     string `json:"status" gorm:"column:status;size:1;default:0;comment:状态(0正常 1停用)"`
 	DelFlag    string `json:"-" gorm:"column:del_flag;size:1;default:0;comment:删除标志(0存在 2删除)"`
@@ -28,11 +28,11 @@ func (CCLegion) TableName() string {
 
 // CCTeam 团队表
 type CCTeam struct {
-	ID           int64  `json:"id" gorm:"primaryKey;autoIncrement;column:id;comment:团队ID"`
+	ID           int64  `json:"id,string" gorm:"primaryKey;autoIncrement;column:id;comment:团队ID"`
 	TeamName     string `json:"teamName" gorm:"column:team_name;size:50;not null;comment:团队名称"`
 	BusinessType string `json:"businessType" gorm:"column:business_type;size:20;comment:业务类型"`
-	LeaderID     *int64 `json:"leaderId" gorm:"column:leader_id;comment:团长ID"`
-	LegionID     *int64 `json:"legionId" gorm:"column:legion_id;comment:所属军团ID"`
+	LeaderID     *int64 `json:"leaderId,string" gorm:"column:leader_id;comment:团长ID"`
+	LegionID     *int64 `json:"legionId,string" gorm:"column:legion_id;comment:所属军团ID"`
 	Balance      int64  `json:"balance" gorm:"column:balance;default:0;comment:团队余额(分)"`
 	Status       string `json:"status" gorm:"column:status;size:1;default:0;comment:状态(0正常 1停用)"`
 	DelFlag      string `json:"-" gorm:"column:del_flag;size:1;default:0;comment:删除标志(0存在 2删除)"`
@@ -54,10 +54,10 @@ func (CCTeam) TableName() string {
 
 // CCSquad 战队表
 type CCSquad struct {
-	ID        int64  `json:"id" gorm:"primaryKey;autoIncrement;column:id;comment:战队ID"`
+	ID        int64  `json:"id,string" gorm:"primaryKey;autoIncrement;column:id;comment:战队ID"`
 	SquadName string `json:"squadName" gorm:"column:squad_name;size:50;not null;uniqueIndex;comment:战队名称"`
-	LeaderID  *int64 `json:"leaderId" gorm:"column:leader_id;comment:战队长ID"`
-	TeamID    int64  `json:"teamId" gorm:"column:team_id;not null;comment:所属团队ID"`
+	LeaderID  *int64 `json:"leaderId,string" gorm:"column:leader_id;comment:战队长ID"`
+	TeamID    int64  `json:"teamId,string" gorm:"column:team_id;not null;comment:所属团队ID"`
 	Balance   int64  `json:"balance" gorm:"column:balance;default:0;comment:战队余额(分)"`
 	Status    string `json:"status" gorm:"column:status;size:1;default:0;comment:状态(0正常 1停用)"`
 	DelFlag   string `json:"-" gorm:"column:del_flag;size:1;default:0;comment:删除标志(0存在 2删除)"`
@@ -69,7 +69,7 @@ type CCSquad struct {
 	LeaderName         string  `json:"leaderName" gorm:"->"`
 	TeamName           string  `json:"teamName" gorm:"->"`
 	TeamLeaderName     string  `json:"teamLeaderName" gorm:"->"`
-	LegionID           *int64  `json:"legionId" gorm:"->"`
+	LegionID           *int64  `json:"legionId,string" gorm:"->"`
 	LegionName         string  `json:"legionName" gorm:"->"`
 	LegionLeaderName   string  `json:"legionLeaderName" gorm:"->"`
 	MonthlyPerformance float64 `json:"monthlyPerformance" gorm:"->"` // 当月业绩(元)

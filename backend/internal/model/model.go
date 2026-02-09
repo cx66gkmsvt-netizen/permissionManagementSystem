@@ -12,8 +12,8 @@ type BaseModel struct {
 
 // SysUser 用户表
 type SysUser struct {
-	UserID    int64      `json:"userId" gorm:"primaryKey;autoIncrement;column:user_id"`
-	DeptID    *int64     `json:"deptId" gorm:"column:dept_id"`
+	UserID    int64      `json:"userId,string" gorm:"primaryKey;autoIncrement;column:user_id"`
+	DeptID    *int64     `json:"deptId,string" gorm:"column:dept_id"`
 	UserName  string     `json:"userName" gorm:"column:user_name;size:30;not null;uniqueIndex"`
 	NickName  string     `json:"nickName" gorm:"column:nick_name;size:30"`
 	Password  string     `json:"-" gorm:"column:password;size:100;not null"`
@@ -38,7 +38,7 @@ func (SysUser) TableName() string {
 
 // SysRole 角色表
 type SysRole struct {
-	RoleID    int64  `json:"roleId" gorm:"primaryKey;autoIncrement;column:role_id"`
+	RoleID    int64  `json:"roleId,string" gorm:"primaryKey;autoIncrement;column:role_id"`
 	RoleName  string `json:"roleName" gorm:"column:role_name;size:30;not null"`
 	RoleKey   string `json:"roleKey" gorm:"column:role_key;size:100;not null;uniqueIndex"`
 	DataScope string `json:"dataScope" gorm:"column:data_scope;size:1;default:1"` // 1全部 2自定义 3本部门及以下 4本部门 5仅本人
