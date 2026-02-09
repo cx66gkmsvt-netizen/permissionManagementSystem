@@ -344,7 +344,7 @@ type LegionCreateDTO struct {
 // LegionUpdateDTO 更新军团DTO
 type LegionUpdateDTO struct {
 	LegionName        string `json:"legionName" binding:"required,max=10"` // 军团名称
-	LeaderID          *int64 `json:"leaderId"`                             // 军团长ID
+	LeaderID          *int64 `json:"leaderId,string"`                      // 军团长ID
 	TransactionAmount *int64 `json:"transactionAmount"`                    // 交易金额(分)，晋升军团长时需要
 }
 
@@ -352,7 +352,7 @@ type LegionUpdateDTO struct {
 type TeamCreateDTO struct {
 	TeamName          string `json:"teamName" binding:"required,max=10"` // 团队名称
 	BusinessType      string `json:"businessType" binding:"required"`    // 业务类型
-	LegionID          *int64 `json:"legionId"`                           // 所属军团ID
+	LegionID          *int64 `json:"legionId,string"`                    // 所属军团ID
 	StructAdjustDate  string `json:"structAdjustDate"`                   // 架构调整时间
 	TransactionAmount int64  `json:"transactionAmount"`                  // 交易金额(分)
 }
@@ -361,8 +361,8 @@ type TeamCreateDTO struct {
 type TeamUpdateDTO struct {
 	TeamName          string `json:"teamName" binding:"required,max=10"` // 团队名称
 	BusinessType      string `json:"businessType" binding:"required"`    // 业务类型
-	LeaderID          *int64 `json:"leaderId"`                           // 团长ID
-	LegionID          *int64 `json:"legionId"`                           // 所属军团ID
+	LeaderID          *int64 `json:"leaderId,string"`                    // 团长ID
+	LegionID          *int64 `json:"legionId,string"`                    // 所属军团ID
 	LeaderAdjustDate  string `json:"leaderAdjustDate"`                   // 团长调整时间
 	StructAdjustDate  string `json:"structAdjustDate"`                   // 架构调整时间
 	TransactionAmount *int64 `json:"transactionAmount"`                  // 交易金额(分)
@@ -371,7 +371,7 @@ type TeamUpdateDTO struct {
 // SquadCreateDTO 创建战队DTO
 type SquadCreateDTO struct {
 	SquadName         string `json:"squadName" binding:"required,max=10"` // 战队名称
-	TeamID            int64  `json:"teamId" binding:"required"`           // 所属团队ID
+	TeamID            int64  `json:"teamId,string" binding:"required"`    // 所属团队ID
 	StructAdjustDate  string `json:"structAdjustDate" binding:"required"` // 架构调整时间
 	TransactionAmount int64  `json:"transactionAmount"`                   // 交易金额(分)
 }
@@ -379,8 +379,8 @@ type SquadCreateDTO struct {
 // SquadUpdateDTO 更新战队DTO
 type SquadUpdateDTO struct {
 	SquadName         string `json:"squadName" binding:"required,max=10"` // 战队名称
-	TeamID            int64  `json:"teamId" binding:"required"`           // 所属团队ID
-	LeaderID          *int64 `json:"leaderId"`                            // 战队长ID
+	TeamID            int64  `json:"teamId,string" binding:"required"`    // 所属团队ID
+	LeaderID          *int64 `json:"leaderId,string"`                     // 战队长ID
 	LeaderAdjustDate  string `json:"leaderAdjustDate"`                    // 战队长调整时间
 	StructAdjustDate  string `json:"structAdjustDate"`                    // 架构调整时间
 	TransactionAmount *int64 `json:"transactionAmount"`                   // 交易金额(分)
