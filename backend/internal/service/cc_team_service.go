@@ -12,6 +12,7 @@ type CCTeamService struct {
 	legionRepo *repository.LegionRepository
 	logRepo    *repository.CCLogRepository
 	ccRepo     *repository.CCRepository
+	userRepo   *repository.UserRepository
 }
 
 func NewCCTeamService() *CCTeamService {
@@ -20,6 +21,7 @@ func NewCCTeamService() *CCTeamService {
 		legionRepo: repository.NewLegionRepository(),
 		logRepo:    repository.NewCCLogRepository(),
 		ccRepo:     repository.NewCCRepository(),
+		userRepo:   repository.NewUserRepository(),
 	}
 }
 
@@ -150,14 +152,34 @@ func (s *CCTeamService) Update(id int64, dto *model.TeamUpdateDTO, operatorID in
 			return errors.New("晋升团长需要输入交易金额")
 		}
 
-		// 验证新团长是否存在且余额足够
-		newLeader, err := s.ccRepo.Get(*dto.LeaderID)
+		// 验证新团长是否存在（从用户管理验证）
+		newLeaderUser, err := s.userRepo.FindByID(*dto.LeaderID)
 		if err != nil {
 			return errors.New("所选团长不存在")
 		}
 
-		if newLeader.Balance < *dto.TransactionAmount {
-			return errors.New("余额不可以操作至负数")
+		// 确保CC记录存在（可能需要创建）
+		newLeader, err := s.ccRepo.Get(*dto.LeaderID)
+		if err != nil {
+			// CC记录不存在，创建一个
+			newLeader = &model.CCMember{
+				ID:       *dto.LeaderID,
+				Name:     newLeaderUser.NickName,
+				Mobile:   newLeaderUser.Phone,
+				RoleType: model.RoleTypeTeamLeader,
+				Status:   "0",
+				CreateBy: "system",
+			}
+			if newLeader.Name == "" {
+				newLeader.Name = newLeaderUser.UserName
+			}
+			if newLeader.Mobile == "" {
+				newLeader.Mobile = fmt.Sprintf("Temp%d", *dto.LeaderID)
+			}
+			if err := s.ccRepo.Create(newLeader); err != nil {
+				return errors.New("创建CC记录失败")
+			}
+			newLeader, _ = s.ccRepo.Get(*dto.LeaderID)
 		}
 
 		// 扣除新团长个人资金
