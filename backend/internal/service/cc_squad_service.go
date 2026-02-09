@@ -256,13 +256,19 @@ func (s *CCSquadService) Update(id int64, dto *model.SquadUpdateDTO, operatorID 
 	if leaderChanged {
 		var oldLeaderName, newLeaderName string
 		if oldLeaderID != nil {
-			if oldLeader, err := s.ccRepo.Get(*oldLeaderID); err == nil {
-				oldLeaderName = oldLeader.NickName
+			if oldLeaderUser, err := s.userRepo.FindByID(*oldLeaderID); err == nil {
+				oldLeaderName = oldLeaderUser.NickName
+				if oldLeaderName == "" {
+					oldLeaderName = oldLeaderUser.UserName
+				}
 			}
 		}
 		if dto.LeaderID != nil {
-			if newLeader, err := s.ccRepo.Get(*dto.LeaderID); err == nil {
-				newLeaderName = newLeader.NickName
+			if newLeaderUser, err := s.userRepo.FindByID(*dto.LeaderID); err == nil {
+				newLeaderName = newLeaderUser.NickName
+				if newLeaderName == "" {
+					newLeaderName = newLeaderUser.UserName
+				}
 			}
 		}
 
