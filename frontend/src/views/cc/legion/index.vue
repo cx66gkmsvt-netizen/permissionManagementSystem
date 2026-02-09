@@ -371,8 +371,8 @@ const handleEdit = async (row) => {
   form.legionName = data.legionName
   form.leaderId = data.leaderId
   form.leaderId = data.leaderId
-  // 加载可选军团长：必须是当前军团下的CC军团长
-  const ccRes = await listCC({ roleType: 'legion_leader', pageSize: 1000 })
+  // 加载可选军团长：所有CC成员
+  const ccRes = await listCC({ pageSize: 1000 })
   leaderOptions.value = ccRes.data.rows || []
   dialogTitle.value = '编辑军团'
   dialogVisible.value = true
