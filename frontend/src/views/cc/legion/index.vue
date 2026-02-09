@@ -68,9 +68,9 @@
           <el-select v-model="form.leaderId" placeholder="请选择军团长" clearable style="width: 100%">
               <el-option
                 v-for="item in leaderOptions"
-                :key="item.id"
+                :key="item.userId"
                 :label="item.nickName"
-                :value="item.id"
+                :value="item.userId"
               />
           </el-select>
         </el-form-item>
@@ -371,9 +371,9 @@ const handleEdit = async (row) => {
   form.legionName = data.legionName
   form.leaderId = data.leaderId
   form.leaderId = data.leaderId
-  // 加载可选军团长：所有CC成员
-  const ccRes = await listCC({ pageSize: 1000 })
-  leaderOptions.value = ccRes.data.rows || []
+  // 加载可选军团长：用户管理中身份为cc军团长
+  const userRes = await listUser({ roleKey: 'cc_legion_leader', pageSize: 1000 })
+  leaderOptions.value = userRes.data.rows || []
   dialogTitle.value = '编辑军团'
   dialogVisible.value = true
 }

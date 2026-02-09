@@ -88,7 +88,7 @@
         </el-form-item>
         <el-form-item v-if="form.id" label="战队长">
           <el-select v-model="form.leaderId" placeholder="请选择战队长" clearable style="width: 100%">
-            <el-option v-for="item in leaderOptions" :key="item.id" :label="item.nickName" :value="item.id" />
+            <el-option v-for="item in leaderOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -293,13 +293,9 @@ const loadLeaderOptions = async (teamId) => {
     leaderOptions.value = []
     return
   }
-  // 使用 listCC 接口，筛选指定团队下的战队长
-  const res = await listCC({ 
-    roleType: 'squad_leader', 
-    teamId: teamId, 
-    pageSize: 1000 
-  })
-  leaderOptions.value = res.data.rows || []
+  // 加载可选战队长：用户管理中身份为cc战队长
+  const userRes = await listUser({ roleKey: 'cc_squad_leader', pageSize: 1000 })
+  leaderOptions.value = userRes.data.rows || []
 }
 
 
