@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"strings"
 	"user-center/internal/model"
 
 	"gorm.io/gorm"
@@ -60,11 +61,20 @@ func (r *UserRepository) List(query *model.UserQuery, dataScope string) (*model.
 		db = db.Where(dataScope)
 	}
 
-	// 角色筛选
+	// 单角色筛选
 	if query.RoleKey != "" {
 		db = db.Joins("JOIN sys_user_role sur ON sys_user.user_id = sur.user_id").
 			Joins("JOIN sys_role sr ON sur.role_id = sr.role_id").
 			Where("sr.role_key = ?", query.RoleKey)
+	}
+
+	// 多角色筛选（逗号分隔）
+	if query.RoleKeys != "" {
+		roleKeys := strings.Split(query.RoleKeys, ",")
+		db = db.Joins("JOIN sys_user_role sur ON sys_user.user_id = sur.user_id").
+			Joins("JOIN sys_role sr ON sur.role_id = sr.role_id").
+			Where("sr.role_key IN ?", roleKeys).
+			Group("sys_user.user_id")
 	}
 
 	db.Count(&total)
