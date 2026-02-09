@@ -337,7 +337,8 @@ const getList = async () => {
 }
 
 const loadCCOptions = async () => {
-  const res = await listCC({ pageSize: 9999, isBlocked: '0' })
+  // 获取所有CC角色用户作为转账收账人
+  const res = await listUser({ roleKeys: 'cc,cc_squad_leader,cc_team_leader,cc_legion_leader', pageSize: 9999 })
   ccOptions.value = res.data.rows || []
 }
 

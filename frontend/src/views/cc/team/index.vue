@@ -322,7 +322,7 @@ onMounted(() => {
 const loadOptions = async () => {
   const [legionRes, ccRes] = await Promise.all([
     listAllLegion(),
-    listCC({ pageSize: 9999, isBlocked: '0' })
+    listUser({ roleKeys: 'cc,cc_squad_leader,cc_team_leader,cc_legion_leader', pageSize: 9999 })
   ])
   legionOptions.value = legionRes.data || []
   ccOptions.value = ccRes.data.rows || []

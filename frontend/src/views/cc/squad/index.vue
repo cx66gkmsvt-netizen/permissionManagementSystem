@@ -252,7 +252,7 @@ const transferRules = { amount: [{ required: true }], recipientId: [{ required: 
 onMounted(() => { loadOptions(); getList() })
 
 const loadOptions = async () => {
-  const [teamRes, ccRes] = await Promise.all([listAllCCTeam(), listCC({ pageSize: 9999, isBlocked: '0' })])
+  const [teamRes, ccRes] = await Promise.all([listAllCCTeam(), listUser({ roleKeys: 'cc,cc_squad_leader,cc_team_leader,cc_legion_leader', pageSize: 9999 })])
   teamOptions.value = teamRes.data || []
   ccOptions.value = ccRes.data.rows || []
 }
