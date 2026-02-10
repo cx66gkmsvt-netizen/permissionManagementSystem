@@ -104,6 +104,35 @@ const router = createRouter({
 // 白名单
 const whiteList = ['/login']
 
+// 无需权限检查的页面
+const noPermPages = ['/dashboard', '/profile']
+
+// 获取第一个可访问的菜单路径
+function getFirstMenuPath(routes) {
+    for (const menu of routes) {
+        if (menu.children && menu.children.length > 0) {
+            const childPath = menu.children[0].path
+            return childPath.startsWith('/') ? childPath : menu.path + '/' + childPath
+        }
+        if (menu.path) {
+            return menu.path
+        }
+    }
+    return '/dashboard'
+}
+
+// 检查用户是否有该路由权限
+function hasRoutePermission(to, userStore) {
+    // 无需权限的页面直接通过
+    if (noPermPages.includes(to.path)) return true
+    // 没有定义permission的路由直接通过
+    if (!to.meta.permission) return true
+    // 超管权限直接通过
+    if (userStore.permissions.includes('*:*:*')) return true
+    // 检查是否有该权限
+    return userStore.permissions.includes(to.meta.permission)
+}
+
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
     document.title = to.meta.title ? `${to.meta.title} - 用户中心` : '用户中心'
@@ -119,13 +148,25 @@ router.beforeEach(async (to, from, next) => {
                 try {
                     await userStore.fetchUserInfo()
                     await userStore.fetchRoutes()
-                    next({ ...to, replace: true })
+                    // 检查是否有访问目标页面的权限
+                    if (!hasRoutePermission(to, userStore)) {
+                        const firstPath = getFirstMenuPath(userStore.menuRoutes)
+                        next({ path: firstPath, replace: true })
+                    } else {
+                        next({ ...to, replace: true })
+                    }
                 } catch (error) {
                     userStore.logout()
                     next('/login')
                 }
             } else {
-                next()
+                // 检查权限，无权限则重定向
+                if (!hasRoutePermission(to, userStore)) {
+                    const firstPath = getFirstMenuPath(userStore.menuRoutes)
+                    next({ path: firstPath, replace: true })
+                } else {
+                    next()
+                }
             }
         }
     } else {

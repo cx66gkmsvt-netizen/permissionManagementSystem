@@ -28,6 +28,10 @@ func (h *CCHandler) List(c *gin.Context) {
 		return
 	}
 
+	// 根据当前用户角色应用数据范围过滤
+	scope := getDataScope(c)
+	applyDataScopeToCCQuery(&query, scope)
+
 	result, err := h.svc.List(&query)
 	if err != nil {
 		pkg.Fail(c, err.Error())

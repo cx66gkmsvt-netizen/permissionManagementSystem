@@ -27,6 +27,10 @@ func (h *AttendanceHandler) List(c *gin.Context) {
 		return
 	}
 
+	// 根据当前用户角色应用数据范围过滤
+	scope := getDataScope(c)
+	applyDataScopeToCCQuery(&query, scope)
+
 	// 获取日期列表
 	dates := c.QueryArray("dates")
 	if len(dates) == 0 {
@@ -119,6 +123,10 @@ func (h *AttendanceHandler) Export(c *gin.Context) {
 		pkg.FailCode(c, 400, err.Error())
 		return
 	}
+
+	// 根据当前用户角色应用数据范围过滤
+	scope := getDataScope(c)
+	applyDataScopeToCCQuery(&query, scope)
 
 	// 获取日期列表
 	dates := c.QueryArray("dates")

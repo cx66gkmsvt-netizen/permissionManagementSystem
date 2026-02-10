@@ -27,6 +27,10 @@ func (h *LeadAllocationHandler) List(c *gin.Context) {
 		return
 	}
 
+	// 根据当前用户角色应用数据范围过滤
+	scope := getDataScope(c)
+	applyDataScopeToLeadAllocationQuery(&query, scope)
+
 	date := c.Query("date")
 	if date == "" {
 		pkg.FailCode(c, 400, "请提供日期参数")
