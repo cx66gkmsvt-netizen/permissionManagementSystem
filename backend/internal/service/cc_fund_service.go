@@ -7,6 +7,20 @@ import (
 	"user-center/internal/repository"
 )
 
+// getRoleTypeName 获取CC角色中文名称
+func getRoleTypeName(roleType string) string {
+	switch roleType {
+	case model.RoleTypeSquadLeader:
+		return "CC战队长"
+	case model.RoleTypeTeamLeader:
+		return "CC团长"
+	case model.RoleTypeLegionLeader:
+		return "CC军团长"
+	default:
+		return "CC"
+	}
+}
+
 type CCFundService struct {
 	ccRepo     *repository.CCRepository
 	squadRepo  *repository.CCSquadRepository
@@ -120,8 +134,10 @@ func (s *CCFundService) CCTransfer(ccID int64, dto *model.FundTransferDTO, opera
 		return err
 	}
 
-	logContent := fmt.Sprintf("%s（CCID%d）转账%.2f元给%s（CCID%d）",
-		cc.NickName, ccID, float64(dto.Amount)/100, recipient.NickName, recipient.ID)
+	recipientRole := getRoleTypeName(recipient.RoleType)
+	amountYuan := float64(dto.Amount) / 100
+	logContent := fmt.Sprintf("%s（CCID:%d），转账%.2f元给%s%s（CCID:%d），个人资金减少%.2f元，对方资金增加%.2f元",
+		cc.NickName, ccID, amountYuan, recipientRole, recipient.NickName, recipient.ID, amountYuan, amountYuan)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       "cc_transfer",
 		TargetType:    "cc",
@@ -278,8 +294,11 @@ func (s *CCFundService) SquadTransfer(squadID int64, dto *model.FundTransferDTO,
 		return err
 	}
 
-	logContent := fmt.Sprintf("战队ID%d转账%.2f分给%s（CCID%d），战队资金减少%.2f分，个人资金增加%.2f分",
-		squadID, float64(dto.Amount)/100, recipient.NickName, recipient.ID, float64(dto.Amount)/100, float64(transferAmount)/100)
+	recipientRole := getRoleTypeName(recipient.RoleType)
+	amountYuan := float64(dto.Amount) / 100
+	receivedYuan := float64(transferAmount) / 100
+	logContent := fmt.Sprintf("战队名称:%s，战队ID:%d，转账%.2f元给%s%s（CCID:%d），战队资金减少%.2f元，个人资金增加%.2f元",
+		squad.SquadName, squadID, amountYuan, recipientRole, recipient.NickName, recipient.ID, amountYuan, receivedYuan)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeSquadTransfer,
 		TargetType:    "squad",
@@ -437,8 +456,11 @@ func (s *CCFundService) TeamTransfer(teamID int64, dto *model.FundTransferDTO, o
 		return err
 	}
 
-	logContent := fmt.Sprintf("团队ID%d转账%.2f分给%s（CCID%d），团队资金减少%.2f分，个人资金增加%.2f分",
-		teamID, float64(dto.Amount)/100, recipient.NickName, recipient.ID, float64(dto.Amount)/100, float64(transferAmount)/100)
+	recipientRole := getRoleTypeName(recipient.RoleType)
+	amountYuan := float64(dto.Amount) / 100
+	receivedYuan := float64(transferAmount) / 100
+	logContent := fmt.Sprintf("团队名称:%s，团队ID:%d，转账%.2f元给%s%s（CCID:%d），团队资金减少%.2f元，个人资金增加%.2f元",
+		team.TeamName, teamID, amountYuan, recipientRole, recipient.NickName, recipient.ID, amountYuan, receivedYuan)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeTeamTransfer,
 		TargetType:    "team",
@@ -595,8 +617,10 @@ func (s *CCFundService) LegionTransfer(legionID int64, dto *model.FundTransferDT
 		return err
 	}
 
-	logContent := fmt.Sprintf("军团ID%d转账%.2f分给%s（CCID%d），军团资金减少%.2f分，个人资金增加%.2f分",
-		legionID, float64(dto.Amount)/100, recipient.NickName, recipient.ID, float64(dto.Amount)/100, float64(dto.Amount)/100)
+	recipientRole := getRoleTypeName(recipient.RoleType)
+	amountYuan := float64(dto.Amount) / 100
+	logContent := fmt.Sprintf("军团名称:%s，军团ID:%d，转账%.2f元给%s%s（CCID:%d），军团资金减少%.2f元，个人资金增加%.2f元",
+		legion.LegionName, legionID, amountYuan, recipientRole, recipient.NickName, recipient.ID, amountYuan, amountYuan)
 	s.logRepo.CreateFundLog(&model.CCFundLog{
 		LogType:       model.FundLogTypeLegionTransfer,
 		TargetType:    "legion",
