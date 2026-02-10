@@ -15,6 +15,11 @@
             <el-option label="停用" value="1" />
           </el-select>
         </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="queryParams.roleId" placeholder="请选择角色" clearable style="width: 150px">
+            <el-option v-for="role in roleOptions" :key="role.roleId" :label="role.roleName" :value="role.roleId" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -186,7 +191,8 @@ const queryParams = reactive({
   pageSize: 10,
   userName: '',
   phone: '',
-  status: ''
+  status: '',
+  roleId: undefined
 })
 
 const form = reactive({
@@ -261,6 +267,7 @@ const resetQuery = () => {
   queryParams.userName = ''
   queryParams.phone = ''
   queryParams.status = ''
+  queryParams.roleId = undefined
   handleQuery()
 }
 

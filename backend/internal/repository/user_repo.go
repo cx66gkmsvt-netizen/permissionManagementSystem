@@ -61,7 +61,13 @@ func (r *UserRepository) List(query *model.UserQuery, dataScope string) (*model.
 		db = db.Where(dataScope)
 	}
 
-	// 单角色筛选
+	// 角色ID筛选
+	if query.RoleID != nil {
+		db = db.Joins("JOIN sys_user_role sur_id ON sys_user.user_id = sur_id.user_id").
+			Where("sur_id.role_id = ?", *query.RoleID)
+	}
+
+	// 单角色筛选（RoleKey）
 	if query.RoleKey != "" {
 		db = db.Joins("JOIN sys_user_role sur ON sys_user.user_id = sur.user_id").
 			Joins("JOIN sys_role sr ON sur.role_id = sr.role_id").

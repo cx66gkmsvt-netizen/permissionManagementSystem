@@ -48,6 +48,7 @@ type UserQuery struct {
 	Phone    string `json:"phone" form:"phone"`
 	Status   string `json:"status" form:"status"`
 	DeptID   *int64 `json:"deptId" form:"deptId"`
+	RoleID   *int64 `json:"roleId" form:"roleId"`
 	RoleKey  string `json:"roleKey" form:"roleKey"`
 	RoleKeys string `json:"roleKeys" form:"roleKeys"` // 多角色筛选，逗号分隔
 }
