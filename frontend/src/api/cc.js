@@ -42,3 +42,38 @@ export function deleteCC(id) {
         method: 'delete'
     })
 }
+
+// 获取CC资金信息
+export function getCCFund(id) {
+    return request({
+        url: `/system/cc/${id}/fund`,
+        method: 'get'
+    })
+}
+
+// 编辑CC余额
+export function editCCFund(id, data) {
+    return request({
+        url: `/system/cc/${id}/fund`,
+        method: 'put',
+        data
+    })
+}
+
+// CC转账
+export function transferCC(id, data) {
+    return request({
+        url: `/system/cc/${id}/transfer`,
+        method: 'post',
+        data
+    })
+}
+
+// 获取CC账单
+export function getCCBills(id, billType) {
+    return request({
+        url: `/system/cc/${id}/bills`,
+        params: { billType },
+        method: 'get'
+    })
+}

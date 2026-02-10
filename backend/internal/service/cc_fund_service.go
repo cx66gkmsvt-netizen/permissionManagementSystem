@@ -92,6 +92,53 @@ func (s *CCFundService) GetCCBills(ccID int64, billType string) ([]model.CCFundL
 	return s.logRepo.ListFundLogsByTarget("cc", ccID, billType)
 }
 
+// CCTransfer CC转账
+func (s *CCFundService) CCTransfer(ccID int64, dto *model.FundTransferDTO, operatorID int64, operatorName string) error {
+	cc, err := s.ccRepo.Get(ccID)
+	if err != nil {
+		return errors.New("CC不存在")
+	}
+
+	if cc.Balance < dto.Amount {
+		return errors.New("余额不可以操作至负数")
+	}
+
+	recipient, err := s.ccRepo.Get(dto.RecipientID)
+	if err != nil {
+		return errors.New("收账人不存在")
+	}
+
+	// 扣除转出方余额
+	newCCBalance := cc.Balance - dto.Amount
+	if err := s.ccRepo.UpdateBalance(ccID, newCCBalance); err != nil {
+		return err
+	}
+
+	// 增加收账人余额
+	newRecipientBalance := recipient.Balance + dto.Amount
+	if err := s.ccRepo.UpdateBalance(dto.RecipientID, newRecipientBalance); err != nil {
+		return err
+	}
+
+	logContent := fmt.Sprintf("%s（CCID%d）转账%.2f元给%s（CCID%d）",
+		cc.NickName, ccID, float64(dto.Amount)/100, recipient.NickName, recipient.ID)
+	s.logRepo.CreateFundLog(&model.CCFundLog{
+		LogType:       "cc_transfer",
+		TargetType:    "cc",
+		TargetID:      ccID,
+		TargetName:    cc.NickName,
+		Amount:        -dto.Amount,
+		BalanceBefore: cc.Balance,
+		BalanceAfter:  newCCBalance,
+		RelatedCCID:   &dto.RecipientID,
+		Content:       logContent,
+		OperatorID:    operatorID,
+		OperatorName:  operatorName,
+	})
+
+	return nil
+}
+
 // ==================== 战队资金管理 ====================
 
 // GetSquadFund 获取战队资金信息

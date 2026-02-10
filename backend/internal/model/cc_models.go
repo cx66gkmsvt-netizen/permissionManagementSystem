@@ -318,8 +318,8 @@ type FundRechargeDTO struct {
 
 // FundTransferDTO 转账DTO
 type FundTransferDTO struct {
-	Amount      int64 `json:"amount" binding:"required,gt=0"` // 转账金额(分)
-	RecipientID int64 `json:"recipientId" binding:"required"` // 收款人CC ID
+	Amount      int64 `json:"amount" binding:"required,gt=0"`        // 转账金额(分)
+	RecipientID int64 `json:"recipientId,string" binding:"required"` // 收款人CC ID
 }
 
 // AdminTransferDTO 管理员转账DTO

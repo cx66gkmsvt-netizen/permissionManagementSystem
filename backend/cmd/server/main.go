@@ -123,6 +123,10 @@ func main() {
 			ccGroup.POST("", middleware.OperLog("CC管理", 1), ccHandler.Create)
 			ccGroup.PUT("/:id", middleware.OperLog("CC管理", 2), ccHandler.Update)
 			ccGroup.DELETE("/:id", middleware.OperLog("CC管理", 3), ccHandler.Delete)
+			ccGroup.GET("/:id/fund", middleware.OperLog("CC资金", 0), ccHandler.GetFund)
+			ccGroup.PUT("/:id/fund", middleware.OperLog("CC资金", 2), ccHandler.EditFund)
+			ccGroup.POST("/:id/transfer", middleware.OperLog("CC转账", 1), ccHandler.Transfer)
+			ccGroup.GET("/:id/bills", middleware.OperLog("CC账单", 0), ccHandler.GetBills)
 		}
 
 		// 军团管理

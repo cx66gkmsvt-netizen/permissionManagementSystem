@@ -115,8 +115,9 @@
           {{ formatDate(row.createTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="120" fixed="right">
+      <el-table-column label="操作" width="180" fixed="right">
         <template #default="{ row }">
+          <el-button type="primary" link @click="handleFund(row)">资金</el-button>
           <el-button type="primary" link icon="Edit" @click="handleEdit(row)">
             编辑
           </el-button>
@@ -247,6 +248,85 @@
         <el-button type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 资金管理弹窗 -->
+    <el-dialog v-model="fundDialogVisible" :title="`个人资金（${currentRow?.nickName || currentRow?.name}）`" width="800px">
+      <div class="fund-header">
+        <div class="balance-info">
+          <span class="label">余额：</span>
+          <span class="value">¥ {{ formatAmount(fundInfo.balance) }}</span>
+        </div>
+        <div class="fund-actions">
+          <el-button type="primary" @click="handleEditBalance">编辑余额</el-button>
+          <el-button type="warning" @click="handleTransfer">转账</el-button>
+        </div>
+      </div>
+      
+      <el-tabs v-model="billType" @tab-change="loadBills">
+        <el-tab-pane label="非流水" name="non_flow" />
+        <el-tab-pane label="流水" name="flow" />
+        <el-tab-pane label="全部" name="all" />
+      </el-tabs>
+      
+      <el-table v-loading="billsLoading" :data="bills" border max-height="400">
+        <el-table-column prop="createTime" label="时间" width="180">
+          <template #default="{ row }">
+            {{ formatDate(row.createTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="logType" label="类别" width="150">
+          <template #default="{ row }">
+            {{ formatLogType(row.logType) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="content" label="说明" />
+      </el-table>
+    </el-dialog>
+
+    <!-- 编辑余额弹窗 -->
+    <el-dialog v-model="editBalanceDialogVisible" title="编辑余额" width="400px">
+      <el-form ref="editBalanceFormRef" :model="editBalanceForm" :rules="editBalanceRules" label-width="100px">
+        <el-form-item label="修改类别" prop="editType">
+          <el-select v-model="editBalanceForm.editType" style="width: 100%">
+            <el-option label="增减" value="adjust" />
+            <el-option label="设置为" value="set" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="修改余额" prop="amount">
+          <el-input-number v-model="editBalanceForm.amount" :precision="0" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="修改原因" prop="reason">
+          <el-input v-model="editBalanceForm.reason" type="textarea" placeholder="必填" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="editBalanceDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="handleEditBalanceSubmit">确认</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 转账弹窗 -->
+    <el-dialog v-model="transferDialogVisible" title="转账" width="400px">
+      <el-form ref="transferFormRef" :model="transferForm" :rules="transferRules" label-width="100px">
+        <el-form-item label="转账金额" prop="amount">
+          <el-input-number v-model="transferForm.amount" :min="1" :precision="0" style="width: 100%" placeholder="必填" />
+        </el-form-item>
+        <el-form-item label="收账人" prop="recipientId">
+          <el-select v-model="transferForm.recipientId" placeholder="请选择收账人" filterable style="width: 100%">
+            <el-option
+              v-for="item in ccTransferOptions"
+              :key="item.userId"
+              :label="item.nickName"
+              :value="item.userId"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="transferDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="handleTransferSubmit">确认</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -256,7 +336,8 @@ defineOptions({
 })
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { listCC, getCC, createCC, updateCC, deleteCC } from '@/api/cc'
+import { listCC, getCC, createCC, updateCC, deleteCC, getCCFund, editCCFund, transferCC, getCCBills } from '@/api/cc'
+import { listUser } from '@/api/user'
 import { listAllLegion } from '@/api/legion'
 import { listAllCCTeam } from '@/api/ccTeam'
 import { listAllCCSquad } from '@/api/ccSquad'
@@ -267,6 +348,41 @@ const total = ref(0)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const submitLoading = ref(false)
+
+// 资金管理
+const fundDialogVisible = ref(false)
+const currentRow = ref(null)
+const fundInfo = reactive({ balance: 0, balanceYuan: 0 })
+const billType = ref('non_flow')
+const billsLoading = ref(false)
+const bills = ref([])
+
+// 编辑余额
+const editBalanceDialogVisible = ref(false)
+const editBalanceFormRef = ref()
+const editBalanceForm = reactive({
+  editType: 'adjust',
+  amount: 0,
+  reason: ''
+})
+const editBalanceRules = {
+  editType: [{ required: true, message: '请选择修改类别', trigger: 'change' }],
+  amount: [{ required: true, message: '请输入修改金额', trigger: 'blur' }],
+  reason: [{ required: true, message: '请输入修改原因', trigger: 'blur' }]
+}
+
+// 转账
+const transferDialogVisible = ref(false)
+const transferFormRef = ref()
+const transferForm = reactive({
+  amount: null,
+  recipientId: null
+})
+const transferRules = {
+  amount: [{ required: true, message: '请输入转账金额', trigger: 'blur' }],
+  recipientId: [{ required: true, message: '请选择收账人', trigger: 'change' }]
+}
+const ccTransferOptions = ref([])
 
 // 组织架构数据
 const legionOptions = ref([])
@@ -320,7 +436,13 @@ const rules = {
 onMounted(() => {
   initOrgData()
   getList()
+  loadTransferOptions()
 })
+
+const loadTransferOptions = async () => {
+  const res = await listUser({ roleKeys: 'cc,cc_squad_leader,cc_team_leader,cc_legion_leader', pageSize: 9999 })
+  ccTransferOptions.value = res.data.rows || []
+}
 
 const initOrgData = async () => {
   const [legionRes, teamRes, squadRes] = await Promise.all([
@@ -470,6 +592,95 @@ const handleSubmit = async () => {
   }
 }
 
+// 资金管理
+const handleFund = async (row) => {
+  currentRow.value = row
+  billType.value = 'non_flow'
+  const res = await getCCFund(row.id)
+  Object.assign(fundInfo, res.data)
+  fundDialogVisible.value = true
+  loadBills()
+}
+
+const loadBills = async () => {
+  billsLoading.value = true
+  try {
+    const res = await getCCBills(currentRow.value.id, billType.value)
+    bills.value = res.data || []
+  } finally {
+    billsLoading.value = false
+  }
+}
+
+const handleEditBalance = () => {
+  editBalanceForm.editType = 'adjust'
+  editBalanceForm.amount = 0
+  editBalanceForm.reason = ''
+  editBalanceDialogVisible.value = true
+}
+
+const handleEditBalanceSubmit = async () => {
+  await editBalanceFormRef.value.validate()
+  
+  if (editBalanceForm.editType === 'set' && editBalanceForm.amount < 0) {
+    ElMessage.error('余额不可以操作至负数')
+    return
+  }
+  
+  submitLoading.value = true
+  try {
+    await editCCFund(currentRow.value.id, {
+      editType: editBalanceForm.editType,
+      amount: editBalanceForm.amount * 100,
+      reason: editBalanceForm.reason
+    })
+    ElMessage.success('修改成功')
+    editBalanceDialogVisible.value = false
+    handleFund(currentRow.value)
+    getList()
+  } finally {
+    submitLoading.value = false
+  }
+}
+
+const handleTransfer = () => {
+  transferForm.amount = null
+  transferForm.recipientId = null
+  transferDialogVisible.value = true
+}
+
+const handleTransferSubmit = async () => {
+  await transferFormRef.value.validate()
+  submitLoading.value = true
+  try {
+    await transferCC(currentRow.value.id, {
+      amount: transferForm.amount * 100,
+      recipientId: transferForm.recipientId
+    })
+    ElMessage.success('转账成功')
+    transferDialogVisible.value = false
+    handleFund(currentRow.value)
+    getList()
+  } finally {
+    submitLoading.value = false
+  }
+}
+
+const formatAmount = (amount) => {
+  if (!amount) return '0.00'
+  return (amount / 100).toFixed(2)
+}
+
+const formatLogType = (type) => {
+  const map = {
+    'cc_balance_edit': '余额修改',
+    'cc_transfer': '转账',
+    'performance_increase': '业绩流水增加',
+    'performance_decrease': '业绩流水减少'
+  }
+  return map[type] || type
+}
+
 const handleDelete = (row) => {
   ElMessageBox.confirm('确定删除该CC吗？', '提示', { type: 'warning' })
     .then(async () => {
@@ -484,3 +695,30 @@ const formatDate = (date) => {
   return new Date(date).toLocaleString('zh-CN')
 }
 </script>
+
+<style scoped>
+.fund-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f5f7fa;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.balance-info .label {
+  color: #666;
+}
+
+.balance-info .value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #409eff;
+}
+
+.fund-actions {
+  display: flex;
+  gap: 8px;
+}
+</style>
