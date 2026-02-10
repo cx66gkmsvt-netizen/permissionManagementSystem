@@ -12,7 +12,7 @@
         <div class="info-row">
           <div class="info-item">
             <el-icon><Clock /></el-icon>
-            <span class="label">当期日期</span>
+            <span class="label">当天日期</span>
             <span class="value">{{ detail.date }}</span>
           </div>
           <div class="info-item">
@@ -41,11 +41,11 @@
             </el-tag>
           </div>
         </div>
-        <div class="info-row" v-if="detail.allocationReason">
+        <div class="info-row">
           <div class="info-item">
             <el-icon><QuestionFilled /></el-icon>
             <span class="label">分配原因</span>
-            <span class="value">{{ detail.allocationReason }}</span>
+            <span class="value">{{ detail.allocationReason || '' }}</span>
           </div>
         </div>
       </div>
