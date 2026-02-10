@@ -18,7 +18,7 @@ func NewLeadAllocationRepository() *LeadAllocationRepository {
 // CreateOrUpdate 创建或更新例子分配记录
 func (r *LeadAllocationRepository) CreateOrUpdate(record *model.CCLeadAllocation) error {
 	var existing model.CCLeadAllocation
-	err := r.db.Where("cc_id = ? AND allocation_date = ?", record.CCID, record.AllocationDate).First(&existing).Error
+	err := r.db.Where("cc_id = ? AND allocation_date = ?", record.CCID, record.AllocationDate.Format("2006-01-02")).First(&existing).Error
 	if err == gorm.ErrRecordNotFound {
 		return r.db.Create(record).Error
 	}
