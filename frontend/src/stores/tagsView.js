@@ -35,6 +35,7 @@ export const useTagsViewStore = defineStore('tagsView', {
         delVisitedView(view) {
             for (const [i, v] of this.visitedViews.entries()) {
                 if (v.path === view.path) {
+                    if (v.meta && v.meta.affix) return // 首页不可关闭
                     this.visitedViews.splice(i, 1)
                     break
                 }

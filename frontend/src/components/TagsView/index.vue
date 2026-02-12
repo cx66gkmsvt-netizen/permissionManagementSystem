@@ -94,12 +94,15 @@ function filterAffixTags(routes, basePath = '/') {
 }
 
 function initTags() {
-  // simplified affix tags init
-  const affixTags = [] 
-  // You can traverse router routes to find affix tags
-  for (const tag of affixTags) {
-    if (tag.name) {
-      tagsViewStore.addVisitedView(tag)
+  const aRoutes = routes.value
+  for (const route of aRoutes) {
+    if (route.meta && route.meta.affix && route.name) {
+      tagsViewStore.addVisitedView({
+        fullPath: route.path,
+        path: route.path,
+        name: route.name,
+        meta: { ...route.meta }
+      })
     }
   }
 }
