@@ -46,9 +46,16 @@
       </el-table-column>
       <el-table-column prop="status" label="状态" width="80" align="center">
         <template #default="{ row }">
-          <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-            {{ row.status === '0' ? '正常' : '停用' }}
-          </el-tag>
+          <el-switch
+            v-model="row.status"
+            active-value="0"
+            inactive-value="1"
+            active-text="正常"
+            inactive-text="停用"
+            inline-prompt
+            :disabled="row.userId === 1"
+            @change="handleStatusChange(row)"
+          />
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="180">
@@ -338,6 +345,18 @@ const handleResetPwd = (row) => {
   pwdForm.userId = row.userId
   pwdForm.password = ''
   pwdDialogVisible.value = true
+}
+
+const handleStatusChange = async (row) => {
+  const text = row.status === '0' ? '启用' : '停用'
+  try {
+    await ElMessageBox.confirm(`确认${text}用户 "${row.userName}" 吗？`, '提示', { type: 'warning' })
+    await updateUser(row.userId, { status: row.status })
+    ElMessage.success(`${text}成功`)
+  } catch {
+    // 取消操作，恢复原状态
+    row.status = row.status === '0' ? '1' : '0'
+  }
 }
 
 const submitResetPwd = async () => {
