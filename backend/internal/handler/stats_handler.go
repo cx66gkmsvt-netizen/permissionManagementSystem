@@ -22,7 +22,7 @@ func (h *StatsHandler) GetStats(c *gin.Context) {
 	db.Table("sys_user").Where("del_flag = '0'").Count(&userCount)
 	db.Table("sys_role").Where("del_flag = '0'").Count(&roleCount)
 	db.Table("sys_dept").Where("del_flag = '0'").Count(&deptCount)
-	db.Table("sys_menu").Count(&menuCount)
+	db.Table("sys_menu").Where("menu_type = ?", "C").Count(&menuCount)
 
 	pkg.OK(c, gin.H{
 		"userCount": userCount,
