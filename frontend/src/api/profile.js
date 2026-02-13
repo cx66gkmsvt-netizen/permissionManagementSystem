@@ -25,3 +25,13 @@ export function updatePassword(data) {
         data
     })
 }
+
+// 上传头像
+export function uploadAvatar(data) {
+    return request({
+        url: '/system/profile/avatar',
+        method: 'post',
+        headers: { 'Content-Type': 'multipart/form-data' },
+        data
+    })
+}

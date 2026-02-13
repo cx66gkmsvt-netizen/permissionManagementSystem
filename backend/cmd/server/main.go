@@ -38,6 +38,9 @@ func main() {
 	// 全局中间件
 	r.Use(middleware.Cors())
 
+	// 静态文件服务（头像等上传文件）
+	r.Static("/api/uploads", "./uploads")
+
 	// 初始化Handler
 	authHandler := handler.NewAuthHandler(cfg)
 	userHandler := handler.NewUserHandler()
@@ -69,6 +72,7 @@ func main() {
 		auth.GET("/system/profile", profileHandler.GetProfile)
 		auth.PUT("/system/profile", profileHandler.UpdateProfile)
 		auth.PUT("/system/profile/password", profileHandler.UpdatePassword)
+		auth.POST("/system/profile/avatar", profileHandler.UploadAvatar)
 
 		// 用户管理
 		userGroup := auth.Group("/system/user")

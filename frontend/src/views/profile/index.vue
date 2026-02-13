@@ -3,8 +3,13 @@
     <el-row :gutter="20">
       <el-col :span="8">
         <div class="page-card user-card">
-          <div class="user-avatar">
-            <el-avatar :size="100" icon="UserFilled" />
+          <div class="user-avatar" @click="triggerUpload">
+            <el-avatar :size="100" :src="avatarUrl" icon="UserFilled" />
+            <div class="avatar-overlay">
+              <el-icon :size="24"><Camera /></el-icon>
+              <span>更换头像</span>
+            </div>
+            <input ref="fileInputRef" type="file" accept="image/jpg,image/jpeg,image/png,image/gif" style="display: none" @change="handleAvatarChange" />
           </div>
           <h3>{{ userStore.userInfo?.nickName || userStore.userInfo?.userName }}</h3>
           <p class="user-role">
@@ -65,16 +70,46 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Camera } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
-import { updateProfile, updatePassword } from '@/api/profile'
+import { updateProfile, updatePassword, uploadAvatar } from '@/api/profile'
 
 const userStore = useUserStore()
 
 const activeTab = ref('info')
 const infoLoading = ref(false)
 const pwdLoading = ref(false)
+const fileInputRef = ref()
+
+const avatarUrl = computed(() => {
+  return userStore.userInfo?.avatar || ''
+})
+
+const triggerUpload = () => {
+  fileInputRef.value?.click()
+}
+
+const handleAvatarChange = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  if (file.size > 2 * 1024 * 1024) {
+    ElMessage.warning('头像文件不能超过2MB')
+    return
+  }
+  const formData = new FormData()
+  formData.append('file', file)
+  try {
+    await uploadAvatar(formData)
+    ElMessage.success('头像更新成功')
+    await userStore.fetchUserInfo()
+  } catch {
+    ElMessage.error('上传失败')
+  } finally {
+    fileInputRef.value.value = ''
+  }
+}
 
 const infoFormRef = ref()
 const pwdFormRef = ref()
@@ -170,6 +205,36 @@ const formatDate = (date) => {
 
 .user-avatar {
   margin-bottom: 16px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.user-avatar:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar-overlay span {
+  margin-top: 4px;
 }
 
 .user-card h3 {
