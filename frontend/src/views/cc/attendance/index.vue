@@ -126,6 +126,8 @@ const displayDates = computed(() => {
 
 onMounted(() => {
   loadLegions()
+  getList()
+  loadStats()
 })
 
 const loadLegions = async () => {
