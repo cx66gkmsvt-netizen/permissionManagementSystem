@@ -181,6 +181,11 @@ const handleQuery = () => {
 const resetQuery = () => {
   queryParams.name = ''
   queryParams.legionId = null
+  const now = new Date()
+  dateRange.value = [
+    formatDateStr(new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000)),
+    formatDateStr(now)
+  ]
   handleQuery()
 }
 
