@@ -126,8 +126,6 @@ const displayDates = computed(() => {
 
 onMounted(() => {
   loadLegions()
-  getList()
-  loadStats()
 })
 
 const loadLegions = async () => {
@@ -158,8 +156,20 @@ const loadStats = async () => {
 }
 
 const handleQuery = () => {
+  if (!dateRange.value || dateRange.value.length !== 2) {
+    ElMessage.warning('请选择日期范围')
+    return
+  }
+  const start = new Date(dateRange.value[0])
+  const end = new Date(dateRange.value[1])
+  const diffDays = Math.round((end - start) / (24 * 60 * 60 * 1000)) + 1
+  if (diffDays > 31) {
+    ElMessage.warning('日期范围最多不超过31天')
+    return
+  }
   queryParams.pageNum = 1
   getList()
+  loadStats()
 }
 
 const resetQuery = () => {
