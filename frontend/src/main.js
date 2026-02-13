@@ -11,6 +11,8 @@ import './styles/index.css'
 
 // 权限指令
 import { permission } from './directives/permission'
+// 全局按钮防连点
+import { setupThrottleClick } from './directives/throttleClick'
 
 const app = createApp(App)
 
@@ -24,4 +26,5 @@ app.use(router)
 app.use(ElementPlus, { locale: zhCn })
 app.directive('permission', permission)
 
+setupThrottleClick()
 app.mount('#app')
