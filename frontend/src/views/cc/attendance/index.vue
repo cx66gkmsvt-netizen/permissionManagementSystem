@@ -13,7 +13,6 @@
             value-format="YYYY-MM-DD"
             style="width: 260px"
             :disabled-date="disabledDate"
-            @change="handleDateChange"
           />
         </el-form-item>
         <el-form-item label="CC姓名">
