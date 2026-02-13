@@ -86,7 +86,7 @@
 <script setup>
 defineOptions({ name: 'Attendance' })
 
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getAttendanceList, updateAttendance, getAttendanceStats, exportAttendance } from '@/api/attendance'
 import { listAllLegion } from '@/api/legion'
@@ -112,20 +112,23 @@ const queryParams = reactive({
   legionId: null
 })
 
-// 计算显示的日期列表
-const displayDates = computed(() => {
-  if (!dateRange.value || dateRange.value.length !== 2) return []
+// 显示的日期列表（仅在搜索时更新）
+const displayDates = ref([])
+
+function buildDates(range) {
+  if (!range || range.length !== 2) return []
   const dates = []
-  const start = new Date(dateRange.value[0])
-  const end = new Date(dateRange.value[1])
+  const start = new Date(range[0])
+  const end = new Date(range[1])
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     dates.push(formatDateStr(new Date(d)))
   }
   return dates
-})
+}
 
 onMounted(() => {
   loadLegions()
+  displayDates.value = buildDates(dateRange.value)
   getList()
   loadStats()
 })
@@ -169,6 +172,7 @@ const handleQuery = () => {
     ElMessage.warning('日期范围最多不超过31天')
     return
   }
+  displayDates.value = buildDates(dateRange.value)
   queryParams.pageNum = 1
   getList()
   loadStats()
@@ -180,9 +184,7 @@ const resetQuery = () => {
   handleQuery()
 }
 
-const handleDateChange = () => {
-  getList()
-}
+
 
 const handleStatusChange = async (row, date, status) => {
   try {
