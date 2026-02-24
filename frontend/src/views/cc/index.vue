@@ -344,6 +344,7 @@ import { listAllCCSquad } from '@/api/ccSquad'
 
 const loading = ref(false)
 const ccList = ref([])
+const allCCList = ref([])
 const total = ref(0)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
@@ -423,11 +424,46 @@ const form = reactive({
   status: '0'
 })
 
+const countDuplicate = (field, value) => {
+  if (!value) return 0
+  return allCCList.value.filter(item => item[field] === value && item.id !== form.id).length
+}
+
+const validateDuplicate = (field, name) => {
+  return (rule, value, callback) => {
+    if (!value) {
+      callback()
+      return
+    }
+    if (countDuplicate(field, value) > 0) {
+      callback(new Error(`${name}不能和别人重复`))
+    } else {
+      callback()
+    }
+  }
+}
+
 const rules = {
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  name: [
+    { required: true, message: '请输入姓名', trigger: 'blur' },
+    { validator: validateDuplicate('name', '姓名'), trigger: 'blur' }
+  ],
+  nickName: [
+    { validator: validateDuplicate('nickName', '昵称'), trigger: 'blur' }
+  ],
   mobile: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
+    { validator: validateDuplicate('mobile', '手机号'), trigger: 'blur' }
+  ],
+  wechat: [
+    { validator: validateDuplicate('wechat', '微信号'), trigger: 'blur' }
+  ],
+  cno1: [
+    { validator: validateDuplicate('cno1', '座席号'), trigger: 'blur' }
+  ],
+  cloudAccount1: [
+    { validator: validateDuplicate('cloudAccount1', '云客账号'), trigger: 'blur' }
   ],
   legionId: [{ required: true, message: '请选择所属军团', trigger: 'change' }],
   teamId: [{ required: true, message: '请选择所属团队', trigger: 'change' }]
@@ -437,7 +473,17 @@ onMounted(() => {
   initOrgData()
   getList()
   loadTransferOptions()
+  loadAllCCs()
 })
+
+const loadAllCCs = async () => {
+  try {
+    const res = await listCC({ pageSize: 9999 })
+    allCCList.value = res.data.rows || []
+  } catch (error) {
+    console.error('Failed to load all CCs', error)
+  }
+}
 
 const loadTransferOptions = async () => {
   const res = await listUser({ roleKeys: 'cc,cc_squad_leader,cc_team_leader,cc_legion_leader', pageSize: 9999 })
@@ -587,6 +633,7 @@ const handleSubmit = async () => {
     }
     dialogVisible.value = false
     getList()
+    loadAllCCs()
   } finally {
     submitLoading.value = false
   }
@@ -687,6 +734,7 @@ const handleDelete = (row) => {
       await deleteCC(row.id)
       ElMessage.success('删除成功')
       getList()
+      loadAllCCs()
     })
 }
 
