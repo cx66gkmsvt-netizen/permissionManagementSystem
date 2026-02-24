@@ -236,6 +236,7 @@ import { listUser } from '@/api/user'
 
 const loading = ref(false)
 const list = ref([])
+const allTeamList = ref([])
 const total = ref(0)
 const legionOptions = ref([])
 const ccOptions = ref([])
@@ -267,8 +268,30 @@ const form = reactive({
 const originalLegionId = ref(null)
 const showStructAdjust = computed(() => form.legionId !== originalLegionId.value && originalLegionId.value !== null)
 
+const countDuplicate = (field, value) => {
+  if (!value) return 0
+  return allTeamList.value.filter(item => item[field] === value && item.id !== form.id).length
+}
+
+const validateDuplicate = (field, name) => {
+  return (rule, value, callback) => {
+    if (!value) {
+      callback()
+      return
+    }
+    if (countDuplicate(field, value) > 0) {
+      callback(new Error(`${name}不能和别人重复`))
+    } else {
+      callback()
+    }
+  }
+}
+
 const rules = {
-  teamName: [{ required: true, message: '请输入团队名称', trigger: 'blur' }],
+  teamName: [
+    { required: true, message: '请输入团队名称', trigger: 'blur' },
+    { validator: validateDuplicate('teamName', '团队名称'), trigger: 'blur' }
+  ],
   businessType: [{ required: true, message: '请选择业务类型', trigger: 'change' }]
 }
 
@@ -317,7 +340,17 @@ const transferRules = {
 onMounted(() => {
   loadOptions()
   getList()
+  loadAllTeams()
 })
+
+const loadAllTeams = async () => {
+  try {
+    const res = await listCCTeam({ pageSize: 9999 })
+    allTeamList.value = res.data.rows || []
+  } catch (error) {
+    console.error('Failed to load all teams', error)
+  }
+}
 
 const loadOptions = async () => {
   const [legionRes, ccRes] = await Promise.all([
@@ -424,6 +457,7 @@ const submitAction = async () => {
     dialogVisible.value = false
     confirmDialogVisible.value = false
     getList()
+    loadAllTeams()
   } finally {
     submitLoading.value = false
   }

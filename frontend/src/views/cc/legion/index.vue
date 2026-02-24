@@ -231,6 +231,7 @@ import { listUser } from '@/api/user'
 
 const loading = ref(false)
 const list = ref([])
+const allLegionList = ref([])
 const total = ref(0)
 
 const queryParams = reactive({
@@ -251,8 +252,30 @@ const form = reactive({
   leaderId: null
 })
 
+const countDuplicate = (field, value) => {
+  if (!value) return 0
+  return allLegionList.value.filter(item => item[field] === value && item.id !== form.id).length
+}
+
+const validateDuplicate = (field, name) => {
+  return (rule, value, callback) => {
+    if (!value) {
+      callback()
+      return
+    }
+    if (countDuplicate(field, value) > 0) {
+      callback(new Error(`${name}不能和别人重复`))
+    } else {
+      callback()
+    }
+  }
+}
+
 const rules = {
-  legionName: [{ required: true, message: '请输入军团名称', trigger: 'blur' }]
+  legionName: [
+    { required: true, message: '请输入军团名称', trigger: 'blur' },
+    { validator: validateDuplicate('legionName', '军团名称'), trigger: 'blur' }
+  ]
 }
 
 // 军团长选项
@@ -323,7 +346,17 @@ const transferRules = {
 onMounted(() => {
   getList()
   loadCCOptions()
+  loadAllLegions()
 })
+
+const loadAllLegions = async () => {
+  try {
+    const res = await listLegion({ pageSize: 9999 })
+    allLegionList.value = res.data.rows || []
+  } catch (error) {
+    console.error('Failed to load all legions', error)
+  }
+}
 
 const getList = async () => {
   loading.value = true
@@ -413,6 +446,7 @@ const submitAction = async () => {
     dialogVisible.value = false
     confirmDialogVisible.value = false
     getList()
+    loadAllLegions()
   } catch (error) {
     ElMessage.error(error.message || '操作失败')
   } finally {

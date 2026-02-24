@@ -197,6 +197,7 @@ import { listUser } from '@/api/user'
 
 const loading = ref(false)
 const list = ref([])
+const allSquadList = ref([])
 const total = ref(0)
 const teamOptions = ref([])
 const ccOptions = ref([])
@@ -209,8 +210,30 @@ const submitLoading = ref(false)
 const formRef = ref()
 
 const form = reactive({ id: null, squadName: '', teamId: null, leaderId: null, structAdjustDate: '', transactionAmount: null })
+const countDuplicate = (field, value) => {
+  if (!value) return 0
+  return allSquadList.value.filter(item => item[field] === value && item.id !== form.id).length
+}
+
+const validateDuplicate = (field, name) => {
+  return (rule, value, callback) => {
+    if (!value) {
+      callback()
+      return
+    }
+    if (countDuplicate(field, value) > 0) {
+      callback(new Error(`${name}不能和别人重复`))
+    } else {
+      callback()
+    }
+  }
+}
+
 const rules = {
-  squadName: [{ required: true, message: '请输入战队名称', trigger: 'blur' }],
+  squadName: [
+    { required: true, message: '请输入战队名称', trigger: 'blur' },
+    { validator: validateDuplicate('squadName', '战队名称'), trigger: 'blur' }
+  ],
   teamId: [{ required: true, message: '请选择所属团队', trigger: 'change' }],
   structAdjustDate: [{ required: true, message: '请选择架构调整时间', trigger: 'change' }]
 }
@@ -249,7 +272,16 @@ const transferFormRef = ref()
 const transferForm = reactive({ amount: null, recipientId: null })
 const transferRules = { amount: [{ required: true }], recipientId: [{ required: true }] }
 
-onMounted(() => { loadOptions(); getList() })
+onMounted(() => { loadOptions(); getList(); loadAllSquads() })
+
+const loadAllSquads = async () => {
+  try {
+    const res = await listCCSquad({ pageSize: 9999 })
+    allSquadList.value = res.data.rows || []
+  } catch (error) {
+    console.error('Failed to load all squads', error)
+  }
+}
 
 const loadOptions = async () => {
   const [teamRes, ccRes] = await Promise.all([listAllCCTeam(), listUser({ roleKeys: 'cc,cc_squad_leader,cc_team_leader,cc_legion_leader', pageSize: 9999 })])
@@ -334,6 +366,7 @@ const submitAction = async () => {
     dialogVisible.value = false
     confirmDialogVisible.value = false
     getList()
+    loadAllSquads()
   } finally { submitLoading.value = false }
 }
 
