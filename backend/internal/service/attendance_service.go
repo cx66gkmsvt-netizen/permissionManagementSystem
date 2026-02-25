@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"time"
 	"user-center/internal/model"
 	"user-center/internal/repository"
@@ -180,4 +181,47 @@ func (s *AttendanceService) ExportAttendance(query *model.CCQuery, dates []strin
 		return nil, err
 	}
 	return buffer.Bytes(), nil
+}
+
+// ResetDailyAttendance 每天0点重置所有在班状态为休班
+func (s *AttendanceService) ResetDailyAttendance() error {
+	today := time.Now().Format("2006-01-02")
+
+	// 获取所有当前在班状态为 1(在班) 的CC人员
+	query := &model.CCQuery{AttendanceStatus: model.AttendanceStatusOnDuty}
+	query.PageSize = 99999
+
+	result, err := s.ccRepo.List(query)
+	if err != nil {
+		log.Printf("Failed to list on-duty CCs: %v", err)
+		return err
+	}
+
+	ccList := result.Rows.([]model.CCMember)
+	if len(ccList) == 0 {
+		log.Println("No CCs are currently on duty. Reset skipped.")
+		return nil
+	}
+
+	var records []*model.CCAttendance
+	for _, cc := range ccList {
+		// 修改这批人的状态为 2(休班)
+		s.ccRepo.UpdateAttendanceStatus(cc.ID, model.AttendanceStatusOffDuty)
+
+		// 新增休班打卡记录
+		records = append(records, &model.CCAttendance{
+			CCID:           cc.ID,
+			AttendanceDate: time.Now(),
+			Status:         model.AttendanceStatusOffDuty,
+			OperatorID:     nil, // System operated
+		})
+	}
+
+	if err := s.repo.BatchCreateOrUpdate(records); err != nil {
+		log.Printf("Failed to create attendance records for reset: %v", err)
+		return err
+	}
+
+	log.Printf("Successfully reset %d CCs to off-duty status for %s", len(ccList), today)
+	return nil
 }

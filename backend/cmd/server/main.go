@@ -11,6 +11,7 @@ import (
 	"user-center/internal/middleware"
 	"user-center/internal/pkg"
 	"user-center/internal/repository"
+	"user-center/internal/task"
 )
 
 func main() {
@@ -28,6 +29,9 @@ func main() {
 	// 初始化数据
 	initData()
 	initCCData()
+
+	// 初始化定时任务
+	task.InitCronJobs()
 
 	// 设置Gin模式
 	gin.SetMode(cfg.Server.Mode)
